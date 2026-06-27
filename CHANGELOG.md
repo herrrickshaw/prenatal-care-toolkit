@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-06-27
+
+### Added
+- README status badges (CI, Docker publish, GHCR, license, Python) and a
+  **Docker usage** section (pull/run/build, tag scheme, image-visibility note).
+
+### Notes
+- GHCR container packages default to private even on a public repo and cannot be
+  made public via the workflow token; documented the one-time manual toggle.
+
 ## [0.1.0] - 2026-06-27
 
 Initial release. A defensive, analytical toolkit for prenatal imaging and data
@@ -26,4 +36,5 @@ that deliberately contains **no fetal-sex / fetal-genitalia detector**.
 - Unified `pctk` CLI, Docker image (Tesseract bundled), CI + GHCR publish
   workflows, and a smoke-test suite (10 tests).
 
+[0.1.1]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.1.1
 [0.1.0]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.1.0

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prenatal-care-toolkit"
-version = "0.1.0"
+version = "0.1.1"
 description = "Defensive prenatal-imaging toolkit: PHI de-identification, sex-ratio-at-birth analytics, PCPNDT compliance auditing, and sex-neutral fetal biometry."
 readme = "README.md"
 requires-python = ">=3.8"

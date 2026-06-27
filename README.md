@@ -1,5 +1,11 @@
 # prenatal-care-toolkit (`pctk`)
 
+[![CI](https://github.com/herrrickshaw/prenatal-care-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/herrrickshaw/prenatal-care-toolkit/actions/workflows/ci.yml)
+[![Docker](https://github.com/herrrickshaw/prenatal-care-toolkit/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/herrrickshaw/prenatal-care-toolkit/actions/workflows/docker-publish.yml)
+[![GHCR](https://img.shields.io/badge/ghcr.io-prenatal--care--toolkit-2496ED?logo=docker&logoColor=white)](https://github.com/herrrickshaw/prenatal-care-toolkit/pkgs/container/prenatal-care-toolkit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
+
 A toolkit of **defensive** and **analytical** utilities for prenatal imaging and
 data, built to help prevent sex-selective abortion (female foeticide) and to
 protect patient privacy.
@@ -56,6 +62,40 @@ pip install pypdf pymupdf                 # digital + scanned PDF support
 
 Without an OCR engine, pixel redaction falls back to blanking the standard
 top/bottom overlay bands.
+
+## Docker
+
+A prebuilt image (Tesseract OCR bundled) is published to the GitHub Container
+Registry on every release tag:
+
+```bash
+docker pull ghcr.io/herrrickshaw/prenatal-care-toolkit:latest
+
+# the entrypoint is the `pctk` CLI; pass any subcommand as args
+docker run --rm ghcr.io/herrrickshaw/prenatal-care-toolkit:latest --version
+docker run --rm ghcr.io/herrrickshaw/prenatal-care-toolkit:latest \
+  biometry --bpd 46 --hc 170 --ac 150 --fl 30
+
+# mount a folder to process your own files
+docker run --rm -v "$PWD/data:/data" \
+  ghcr.io/herrrickshaw/prenatal-care-toolkit:latest \
+  deid-dicom /data/in.dcm /data/clean.dcm
+```
+
+Tags: `latest`, `MAJOR.MINOR` (e.g. `0.1`), and the exact version (`0.1.1`).
+
+Build it yourself:
+
+```bash
+docker build -t prenatal-care-toolkit .
+docker run --rm prenatal-care-toolkit backends
+```
+
+> **Note on image visibility:** GHCR packages start **private** even on a public
+> repo, and neither the workflow's `GITHUB_TOKEN` nor any REST endpoint can flip
+> them. Make it public **once** via GitHub → repo **Packages** →
+> `prenatal-care-toolkit` → *Package settings* → *Change visibility* → **Public**
+> (and *Connect repository*). All later pushes keep that setting.
 
 ## Quick start
 

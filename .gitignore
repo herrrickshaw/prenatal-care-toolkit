@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Generated sample data / outputs (regenerate with examples/make_sample_data.py)
+data/

@@ -1,0 +1,20 @@
+# Core (required)
+numpy>=1.21
+pillow>=9
+pandas>=1.3
+pydicom>=2.3
+
+# Optional OCR backends for burned-in pixel-text detection (Problem 1) and
+# Form-F image ingestion (Problem 3). Install at least one to go beyond the
+# margin-band fallback:
+#   easyocr      - pure pip, pulls in torch (large), no system binary
+#   pytesseract  - small, but needs the `tesseract` binary on PATH
+#                  (macOS: `brew install tesseract`)
+# easyocr>=1.7
+# pytesseract>=0.3.10
+
+# Optional, for Form-F ingestion from PDFs (Problem 3):
+#   pypdf    - digital (text) PDFs
+#   pymupdf  - rasterise scanned PDFs for OCR (single wheel, no system binary)
+# pypdf>=4
+# pymupdf>=1.23

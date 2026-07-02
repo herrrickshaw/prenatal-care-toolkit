@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.1] - 2026-07-02
+
+### Fixed
+- `cli.py` missing top-level `import os`, which crashed `health-demo` (and any
+  command using a temp-dir default path) with `NameError: name 'os' is not
+  defined`. Added a CLI smoke test path without `--data` to catch it.
+
 ## [0.3.0] - 2026-06-27
 
 ### Added
@@ -69,6 +76,7 @@ that deliberately contains **no fetal-sex / fetal-genitalia detector**.
 - Unified `pctk` CLI, Docker image (Tesseract bundled), CI + GHCR publish
   workflows, and a smoke-test suite (10 tests).
 
+[0.3.1]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.3.1
 [0.3.0]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.3.0
 [0.2.0]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.2.0
 [0.1.1]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.1.1

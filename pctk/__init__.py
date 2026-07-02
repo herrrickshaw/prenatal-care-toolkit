@@ -21,7 +21,7 @@ Modules degrade gracefully when optional dependencies (OCR engines, etc.)
 are missing.
 """
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 __all__ = ["deid", "srb", "compliance", "biometry", "planes", "health",
            "__version__"]

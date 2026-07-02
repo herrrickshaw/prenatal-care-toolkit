@@ -4,6 +4,22 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-06-27
+
+### Added
+- **`pctk.health`** — sex-neutral fetal-wellbeing (CTG/cardiotocography)
+  classifier (normal / suspect / pathological) on the 21 SisPorto features;
+  StandardScaler → GradientBoosting, with feature importances. CLI:
+  `health-demo`, `health-train`, `health-predict`.
+- **Optional PyTorch CNN backend** for `pctk.planes` (`CNNPlaneClassifier`),
+  behind the same `planes-train/eval/predict` interface via `--backend torch`.
+  Torch is imported lazily (package still works without it); a dedicated
+  `cnn-backend` CI job exercises the path on CPU wheels.
+
+### Notes
+- Neither new component has a fetal-sex target — health status and anatomical
+  planes only.
+
 ## [0.2.0] - 2026-06-27
 
 ### Added
@@ -53,6 +69,7 @@ that deliberately contains **no fetal-sex / fetal-genitalia detector**.
 - Unified `pctk` CLI, Docker image (Tesseract bundled), CI + GHCR publish
   workflows, and a smoke-test suite (10 tests).
 
+[0.3.0]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.3.0
 [0.2.0]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.2.0
 [0.1.1]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.1.1
 [0.1.0]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.1.0

@@ -271,14 +271,30 @@ def cmd_planes_demo(args) -> int:
     return 0
 
 
+def _plane_clf(backend: str, epochs: int = 8):
+    if backend == "torch":
+        from .planes.torch_cnn import CNNPlaneClassifier, CNNConfig
+        return CNNPlaneClassifier(CNNConfig(epochs=epochs))
+    from .planes import PlaneClassifier
+    return PlaneClassifier()
+
+
+def _load_plane_clf(backend: str, path: str):
+    if backend == "torch":
+        from .planes.torch_cnn import CNNPlaneClassifier
+        return CNNPlaneClassifier.load(path)
+    from .planes import PlaneClassifier
+    return PlaneClassifier.load(path)
+
+
 def cmd_planes_train(args) -> int:
-    from .planes import load_fetal_planes_db, PlaneClassifier
+    from .planes import load_fetal_planes_db
 
     df = load_fetal_planes_db(args.data)
-    clf = PlaneClassifier()
+    clf = _plane_clf(args.backend, args.epochs)
     info = clf.train(df)
-    print(f"[planes-train] {info['n_train']} imgs, {len(info['classes'])} classes: "
-          f"{info['classes']}")
+    print(f"[planes-train:{args.backend}] {info['n_train']} imgs, "
+          f"{len(info['classes'])} classes: {info['classes']}")
     if "test" in set(df.get("split", [])):
         res = clf.evaluate(df)
         print(f"[planes-train] held-out accuracy: {res['accuracy']:.3f}")
@@ -288,9 +304,9 @@ def cmd_planes_train(args) -> int:
 
 
 def cmd_planes_eval(args) -> int:
-    from .planes import load_fetal_planes_db, PlaneClassifier
+    from .planes import load_fetal_planes_db
 
-    clf = PlaneClassifier.load(args.model)
+    clf = _load_plane_clf(args.backend, args.model)
     df = load_fetal_planes_db(args.data)
     res = clf.evaluate(df, split=args.split)
     print(f"[planes-eval] accuracy: {res['accuracy']:.3f} (n={res['n_test']})")
@@ -299,9 +315,7 @@ def cmd_planes_eval(args) -> int:
 
 
 def cmd_planes_predict(args) -> int:
-    from .planes import PlaneClassifier
-
-    clf = PlaneClassifier.load(args.model)
+    clf = _load_plane_clf(args.backend, args.model)
     out = clf.predict(args.image)
     print(f"[planes-predict] {args.image}")
     print(f"   plane: {out['label']}"
@@ -311,6 +325,59 @@ def cmd_planes_predict(args) -> int:
         top = sorted(out["proba"].items(), key=lambda kv: -kv[1])[:3]
         for cls, p in top:
             print(f"     {cls:16} {p:.2f}")
+    return 0
+
+
+def cmd_health_demo(args) -> int:
+    import tempfile
+    from .health import (make_synthetic_health, load_fetal_health,
+                         FetalHealthClassifier)
+
+    csv = args.data or os.path.join(tempfile.mkdtemp(prefix="pctk_health_"),
+                                    "ctg.csv")
+    print(f"[health-demo] generating synthetic CTG data -> {csv}")
+    make_synthetic_health(csv, n=args.n)
+    X, y = load_fetal_health(csv)
+    clf = FetalHealthClassifier()
+    res = clf.fit_eval(X, y)
+    print(f"[health-demo] train={res['n_train']} test={res['n_test']}  "
+          f"accuracy={res['accuracy']:.3f}  macro-F1={res['macro_f1']:.3f}")
+    print(res["report"])
+    print("[health-demo] top features:")
+    for name, imp in clf.feature_importances(top=6):
+        print(f"   {imp:.3f}  {name}")
+    if args.out:
+        clf.save(args.out)
+        print(f"[health-demo] model -> {args.out}")
+    return 0
+
+
+def cmd_health_train(args) -> int:
+    from .health import load_fetal_health, FetalHealthClassifier
+
+    X, y = load_fetal_health(args.data)
+    clf = FetalHealthClassifier()
+    res = clf.fit_eval(X, y)
+    print(f"[health-train] accuracy={res['accuracy']:.3f}  "
+          f"macro-F1={res['macro_f1']:.3f}")
+    print(res["report"])
+    clf.save(args.out)
+    print(f"[health-train] model -> {args.out}")
+    return 0
+
+
+def cmd_health_predict(args) -> int:
+    import json
+    from .health import FetalHealthClassifier
+
+    clf = FetalHealthClassifier.load(args.model)
+    with open(args.json) as fh:
+        row = json.load(fh)
+    out = clf.predict(row)
+    print(f"[health-predict] status: {out['status']} (class {out['label']})")
+    if "proba" in out:
+        for k, v in sorted(out["proba"].items(), key=lambda kv: -kv[1]):
+            print(f"   {k:14} {v:.2f}")
     return 0
 
 
@@ -421,16 +488,36 @@ def build_parser() -> argparse.ArgumentParser:
     pt = sub.add_parser("planes-train", help="train plane model on FETAL_PLANES_DB")
     pt.add_argument("data", help="dataset root (Images/ + *_data.csv)")
     pt.add_argument("--out", default="plane_model.joblib")
+    pt.add_argument("--backend", choices=["sklearn", "torch"], default="sklearn")
+    pt.add_argument("--epochs", type=int, default=8, help="torch backend only")
     pt.set_defaults(func=cmd_planes_train)
 
     pe = sub.add_parser("planes-eval", help="evaluate a saved plane model")
     pe.add_argument("data"); pe.add_argument("--model", required=True)
     pe.add_argument("--split", default="test")
+    pe.add_argument("--backend", choices=["sklearn", "torch"], default="sklearn")
     pe.set_defaults(func=cmd_planes_eval)
 
     pp = sub.add_parser("planes-predict", help="classify one ultrasound frame")
     pp.add_argument("image"); pp.add_argument("--model", required=True)
+    pp.add_argument("--backend", choices=["sklearn", "torch"], default="sklearn")
     pp.set_defaults(func=cmd_planes_predict)
+
+    # -- fetal-health (CTG) classifier (sex-neutral) -- #
+    hd = sub.add_parser("health-demo",
+                        help="synthetic end-to-end train+eval of the CTG model")
+    hd.add_argument("--data", default=None, help="CSV to write synthetic data")
+    hd.add_argument("--n", type=int, default=1200)
+    hd.add_argument("--out", default=None)
+    hd.set_defaults(func=cmd_health_demo)
+
+    ht = sub.add_parser("health-train", help="train CTG model on a fetal-health CSV")
+    ht.add_argument("data"); ht.add_argument("--out", default="health_model.joblib")
+    ht.set_defaults(func=cmd_health_train)
+
+    hp = sub.add_parser("health-predict", help="classify one CTG record (JSON)")
+    hp.add_argument("json"); hp.add_argument("--model", required=True)
+    hp.set_defaults(func=cmd_health_predict)
 
     return p
 
@@ -445,7 +532,11 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not getattr(args, "command", None):
         parser.print_help()
         return 1
-    return args.func(args)
+    try:
+        return args.func(args)
+    except ImportError as exc:
+        print(f"[pctk] {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

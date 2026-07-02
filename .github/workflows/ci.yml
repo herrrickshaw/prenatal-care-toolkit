@@ -39,3 +39,25 @@ jobs:
           pctk --version
           pctk backends
           pctk biometry --bpd 46 --hc 170 --ac 150 --fl 30
+          pctk planes-demo --n-per-class 12
+          pctk health-demo --n 600
+
+  # Separate job: exercise the optional PyTorch CNN backend (heavy; CPU wheels).
+  cnn-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install package + CPU PyTorch
+        run: |
+          pip install -e ".[ml]"
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+      - name: Train + eval + predict via the torch CNN backend (1 epoch)
+        run: |
+          python -c "from pctk.planes import make_synthetic_planes as m; m('synthdata', 12)"
+          pctk planes-train synthdata --backend torch --epochs 1 --out cnn.pt
+          pctk planes-eval  synthdata --backend torch --model cnn.pt
+          IMG=$(ls synthdata/Images/Fetal_brain_* | head -1)
+          pctk planes-predict "$IMG" --backend torch --model cnn.pt

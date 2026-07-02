@@ -245,6 +245,52 @@ def test_planes_pipeline():
                    for c in clf2.classes_)
 
 
+# ---- Fetal-health (CTG) classifier (sex-neutral) ----
+def test_health_pipeline():
+    try:
+        import sklearn  # noqa: F401
+    except Exception:
+        return
+    import tempfile
+    from pctk.health import (make_synthetic_health, load_fetal_health,
+                            FetalHealthClassifier, TARGET_NAMES)
+
+    csv = os.path.join(tempfile.mkdtemp(prefix="pctk_health_test_"), "ctg.csv")
+    make_synthetic_health(csv, n=900, seed=2)
+    X, y = load_fetal_health(csv)
+    assert "fetal_health" not in X.columns          # target dropped from features
+    assert set(y.unique()) <= {1, 2, 3}
+    clf = FetalHealthClassifier()
+    res = clf.fit_eval(X, y)
+    assert res["accuracy"] >= 0.8
+    # persistence + prediction on one record
+    mp = csv + ".joblib"
+    clf.save(mp)
+    clf2 = FetalHealthClassifier.load(mp)
+    pred = clf2.predict(X.iloc[0])
+    assert pred["status"] in TARGET_NAMES.values()
+    # no sex feature anywhere
+    assert not any("sex" in c.lower() or "gender" in c.lower() for c in X.columns)
+
+
+# ---- Torch CNN backend: import-safe + graceful guard ----
+def test_torch_cnn_guard():
+    from pctk.planes.torch_cnn import (torch_available, CNNPlaneClassifier,
+                                       CNNConfig)
+    assert isinstance(torch_available(), bool)
+    clf = CNNPlaneClassifier(CNNConfig(epochs=1))   # construction never needs torch
+    assert clf.backend == "torch"
+    if not torch_available():
+        import pandas as pd
+        df = pd.DataFrame({"image_path": ["x.png"], "label": ["Fetal brain"],
+                           "split": ["train"]})
+        try:
+            clf.train(df)
+            assert False, "expected ImportError without torch"
+        except ImportError:
+            pass
+
+
 def _run_all():
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     passed = 0

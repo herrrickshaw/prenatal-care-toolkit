@@ -28,11 +28,16 @@ pctk planes-eval  data/fetal_planes --model plane_model.joblib
 pctk planes-predict some_frame.png  --model plane_model.joblib
 ```
 
-## Tabular — fetal wellbeing (optional future module)
+## Tabular — fetal wellbeing (`pctk.health`)
 
 | Dataset | What | Host |
 |---------|------|------|
-| Fetal Health Classification | 2,126 CTG records, 22 features, 3-class (normal/suspect/pathological) | [Kaggle](https://www.kaggle.com/datasets/andrewmvd/fetal-health-classification) |
+| Fetal Health Classification | 2,126 CTG records, 21 features, 3-class (normal/suspect/pathological) | [Kaggle](https://www.kaggle.com/datasets/andrewmvd/fetal-health-classification) |
+
+```bash
+pctk health-demo                         # synthetic end-to-end, no download
+pctk health-train fetal_health.csv --out health_model.joblib
+```
 
 ## Demographics — sex-ratio analytics (`pctk.srb`)
 

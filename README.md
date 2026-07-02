@@ -34,7 +34,8 @@ modules:
 | 2 | `pctk.srb` | Surface anomalous **sex-ratio-at-birth** signals for PCPNDT auditors |
 | 3 | `pctk.compliance` | **PCPNDT Form-F** and machine-registration audit rule engine |
 | 4 | `pctk.biometry` | Standard, **sex-neutral** fetal biometry & gestational age |
-| 5 | `pctk.planes` | Fetal **anatomical-plane** classifier (brain/abdomen/femur/thorax/cervix/other) — trains on FETAL_PLANES_DB |
+| 5 | `pctk.planes` | Fetal **anatomical-plane** classifier (brain/abdomen/femur/thorax/cervix/other) — sklearn or optional PyTorch CNN |
+| 6 | `pctk.health` | Fetal **wellbeing** (CTG/cardiotocography) classifier — normal/suspect/pathological |
 
 None of the modules look at, infer, or expose fetal sex.
 
@@ -252,6 +253,33 @@ pctk planes-predict frame.png       --model plane_model.joblib
 
 See **[DATASETS.md](DATASETS.md)** for dataset links, download helpers, and the
 ethics note. The labels are anatomical planes only — there is no sex target.
+
+**Optional PyTorch CNN backend** — same CLI, higher accuracy on real data:
+
+```bash
+pip install torch torchvision
+pctk planes-train data/fetal_planes --backend torch --epochs 15 --out cnn.pt
+pctk planes-eval  data/fetal_planes --backend torch --model cnn.pt
+```
+
+Torch is imported lazily, so the package works without it; requesting
+`--backend torch` without torch installed prints a clear install hint. The CNN
+path is exercised by a dedicated `cnn-backend` CI job (CPU wheels).
+
+### 6. `pctk.health` — fetal wellbeing (CTG) classifier
+
+A **sex-neutral** classifier of cardiotocography records into fetal-health
+status (normal / suspect / pathological), the task from the
+[Fetal Health Classification](https://www.kaggle.com/datasets/andrewmvd/fetal-health-classification)
+dataset (21 SisPorto CTG features). CTG measures fetal heart rate and uterine
+contractions — about wellbeing, not sex. StandardScaler → GradientBoosting.
+
+```bash
+pip install -e ".[ml]"
+pctk health-demo                       # synthetic end-to-end, no download
+pctk health-train ctg.csv --out health_model.joblib
+pctk health-predict record.json        --model health_model.joblib
+```
 
 ## Testing
 

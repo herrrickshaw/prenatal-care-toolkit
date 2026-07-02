@@ -216,6 +216,35 @@ def test_formf_parse_and_pseudonymise():
     assert "PRIYA" not in blob and "SHARMA" not in blob
 
 
+# ---- Fetal-plane classifier (sex-neutral) ----
+def test_planes_pipeline():
+    try:
+        import sklearn  # noqa: F401
+    except Exception:
+        return  # sklearn is optional (extras: ml); skip if absent
+    import tempfile
+    from pctk.planes import (make_synthetic_planes, load_fetal_planes_db,
+                             PlaneClassifier, PLANE_CLASSES)
+
+    root = tempfile.mkdtemp(prefix="pctk_planes_test_")
+    make_synthetic_planes(root, n_per_class=16, seed=1)
+    df = load_fetal_planes_db(root)
+    assert set(df["label"]) == set(PLANE_CLASSES)
+    clf = PlaneClassifier()
+    clf.train(df)
+    res = clf.evaluate(df)
+    assert res["accuracy"] >= 0.8            # distinct synthetic classes
+    # round-trip persistence + prediction
+    mp = os.path.join(root, "m.joblib")
+    clf.save(mp)
+    clf2 = PlaneClassifier.load(mp)
+    pred = clf2.predict(df["image_path"].iloc[0])
+    assert pred["label"] in PLANE_CLASSES
+    # the model has no notion of sex
+    assert not any("sex" in c.lower() or "gender" in c.lower()
+                   for c in clf2.classes_)
+
+
 def _run_all():
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     passed = 0

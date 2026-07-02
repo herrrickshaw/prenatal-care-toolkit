@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-06-27
+
+### Added
+- **`pctk.planes`** — sex-neutral fetal **anatomical-plane classifier**
+  (FETAL_PLANES_DB: brain / abdomen / femur / thorax / maternal cervix / other).
+  Dependency-light scikit-learn pipeline (numpy HOG-style features →
+  RandomForest); trains, evaluates, persists (joblib), and predicts on CPU.
+- CLI: `planes-demo` (synthetic end-to-end, no download), `planes-train`,
+  `planes-eval`, `planes-predict`.
+- Kaggle / Zenodo download helpers (`pctk.planes.download`) and **DATASETS.md**
+  cataloguing the public datasets backing each module.
+- `ml` extra (scikit-learn, joblib); image + CI now install it.
+
+### Notes
+- The plane classifier has **no fetal-sex target** — labels are anatomical
+  planes only, consistent with the project's design stance.
+
 ## [0.1.1] - 2026-06-27
 
 ### Added
@@ -36,5 +53,6 @@ that deliberately contains **no fetal-sex / fetal-genitalia detector**.
 - Unified `pctk` CLI, Docker image (Tesseract bundled), CI + GHCR publish
   workflows, and a smoke-test suite (10 tests).
 
+[0.2.0]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.2.0
 [0.1.1]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.1.1
 [0.1.0]: https://github.com/herrrickshaw/prenatal-care-toolkit/releases/tag/v0.1.0

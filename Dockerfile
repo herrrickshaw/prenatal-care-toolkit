@@ -20,7 +20,7 @@ WORKDIR /app
 # needs first so the layer caches well.
 COPY pyproject.toml README.md ./
 COPY pctk ./pctk
-RUN pip install --no-cache-dir ".[ocr-tesseract,pdf]"
+RUN pip install --no-cache-dir ".[ocr-tesseract,pdf,ml]"
 
 # Bring in the examples (sample-data + fetch helpers) for convenience.
 COPY examples ./examples

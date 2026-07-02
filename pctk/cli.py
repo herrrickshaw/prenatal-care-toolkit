@@ -249,6 +249,71 @@ def cmd_biometry(args) -> int:
     return 0
 
 
+def cmd_planes_demo(args) -> int:
+    import tempfile
+    from .planes import make_synthetic_planes, load_fetal_planes_db, PlaneClassifier
+
+    root = args.data or tempfile.mkdtemp(prefix="pctk_planes_")
+    print(f"[planes-demo] generating synthetic FETAL_PLANES_DB-shaped data in {root}")
+    make_synthetic_planes(root, n_per_class=args.n_per_class, seed=0)
+    df = load_fetal_planes_db(root)
+    clf = PlaneClassifier()
+    info = clf.train(df)
+    res = clf.evaluate(df)
+    print(f"[planes-demo] trained on {info['n_train']} imgs, "
+          f"{info['n_features']} features, {len(info['classes'])} classes")
+    print(f"[planes-demo] test accuracy: {res['accuracy']:.3f} "
+          f"(n={res['n_test']})")
+    print(res["report"])
+    if args.out:
+        clf.save(args.out)
+        print(f"[planes-demo] model -> {args.out}")
+    return 0
+
+
+def cmd_planes_train(args) -> int:
+    from .planes import load_fetal_planes_db, PlaneClassifier
+
+    df = load_fetal_planes_db(args.data)
+    clf = PlaneClassifier()
+    info = clf.train(df)
+    print(f"[planes-train] {info['n_train']} imgs, {len(info['classes'])} classes: "
+          f"{info['classes']}")
+    if "test" in set(df.get("split", [])):
+        res = clf.evaluate(df)
+        print(f"[planes-train] held-out accuracy: {res['accuracy']:.3f}")
+    clf.save(args.out)
+    print(f"[planes-train] model -> {args.out}")
+    return 0
+
+
+def cmd_planes_eval(args) -> int:
+    from .planes import load_fetal_planes_db, PlaneClassifier
+
+    clf = PlaneClassifier.load(args.model)
+    df = load_fetal_planes_db(args.data)
+    res = clf.evaluate(df, split=args.split)
+    print(f"[planes-eval] accuracy: {res['accuracy']:.3f} (n={res['n_test']})")
+    print(res["report"])
+    return 0
+
+
+def cmd_planes_predict(args) -> int:
+    from .planes import PlaneClassifier
+
+    clf = PlaneClassifier.load(args.model)
+    out = clf.predict(args.image)
+    print(f"[planes-predict] {args.image}")
+    print(f"   plane: {out['label']}"
+          + (f"  (confidence {out['confidence']:.2f})"
+             if "confidence" in out else ""))
+    if "proba" in out:
+        top = sorted(out["proba"].items(), key=lambda kv: -kv[1])[:3]
+        for cls, p in top:
+            print(f"     {cls:16} {p:.2f}")
+    return 0
+
+
 def cmd_backends(args) -> int:
     from .deid.ocr_backends import available_backends
     found = available_backends()
@@ -343,6 +408,29 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("backends", help="list available OCR backends").set_defaults(
         func=cmd_backends)
+
+    # -- fetal-plane classifier (sex-neutral) -- #
+    pd_ = sub.add_parser("planes-demo",
+                         help="synthetic end-to-end train+eval of the plane model")
+    pd_.add_argument("--data", default=None,
+                     help="dir to write synthetic data (default: temp)")
+    pd_.add_argument("--n-per-class", type=int, default=40)
+    pd_.add_argument("--out", default=None, help="save trained model here")
+    pd_.set_defaults(func=cmd_planes_demo)
+
+    pt = sub.add_parser("planes-train", help="train plane model on FETAL_PLANES_DB")
+    pt.add_argument("data", help="dataset root (Images/ + *_data.csv)")
+    pt.add_argument("--out", default="plane_model.joblib")
+    pt.set_defaults(func=cmd_planes_train)
+
+    pe = sub.add_parser("planes-eval", help="evaluate a saved plane model")
+    pe.add_argument("data"); pe.add_argument("--model", required=True)
+    pe.add_argument("--split", default="test")
+    pe.set_defaults(func=cmd_planes_eval)
+
+    pp = sub.add_parser("planes-predict", help="classify one ultrasound frame")
+    pp.add_argument("image"); pp.add_argument("--model", required=True)
+    pp.set_defaults(func=cmd_planes_predict)
 
     return p
 

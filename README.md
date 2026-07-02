@@ -34,6 +34,7 @@ modules:
 | 2 | `pctk.srb` | Surface anomalous **sex-ratio-at-birth** signals for PCPNDT auditors |
 | 3 | `pctk.compliance` | **PCPNDT Form-F** and machine-registration audit rule engine |
 | 4 | `pctk.biometry` | Standard, **sex-neutral** fetal biometry & gestational age |
+| 5 | `pctk.planes` | Fetal **anatomical-plane** classifier (brain/abdomen/femur/thorax/cervix/other) — trains on FETAL_PLANES_DB |
 
 None of the modules look at, infer, or expose fetal sex.
 
@@ -231,6 +232,26 @@ pctk compliance forms.csv registrations.csv
 
 Hadlock-style gestational-age regressions from BPD/HC/AC/FL and Hadlock-1985
 estimated fetal weight. Educational sanity-check, not a clinical report.
+
+### 5. `pctk.planes` — fetal anatomical-plane classifier
+
+A **sex-neutral** classifier of the standard acquisition plane (fetal brain /
+abdomen / femur / thorax, maternal cervix, other) defined by
+[FETAL_PLANES_DB](https://zenodo.org/record/3904280). Plane recognition makes
+de-id anatomy-aware and is the precursor to biometry. Ships as a dependency-light
+scikit-learn pipeline (numpy HOG-style features → RandomForest) so it runs on
+CPU; swap in a CNN (torch/timm) at `PlaneClassifier` for higher accuracy.
+
+```bash
+pip install -e ".[ml]"
+pctk planes-demo                    # synthetic end-to-end train+eval, no download
+# real data (needs a Kaggle token or Zenodo):
+pctk planes-train data/fetal_planes --out plane_model.joblib
+pctk planes-predict frame.png       --model plane_model.joblib
+```
+
+See **[DATASETS.md](DATASETS.md)** for dataset links, download helpers, and the
+ethics note. The labels are anatomical planes only — there is no sex target.
 
 ## Testing
 

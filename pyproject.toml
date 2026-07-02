@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prenatal-care-toolkit"
-version = "0.1.1"
+version = "0.2.0"
 description = "Defensive prenatal-imaging toolkit: PHI de-identification, sex-ratio-at-birth analytics, PCPNDT compliance auditing, and sex-neutral fetal biometry."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -23,7 +23,8 @@ dependencies = [
 ocr-easy = ["easyocr>=1.7"]
 ocr-tesseract = ["pytesseract>=0.3.10"]
 pdf = ["pypdf>=4", "pymupdf>=1.23"]
-dev = ["pytest>=7"]
+ml = ["scikit-learn>=1.1", "joblib>=1.2"]
+dev = ["pytest>=7", "scikit-learn>=1.1", "joblib>=1.2"]
 
 [project.scripts]
 pctk = "pctk.cli:main"

@@ -1,5 +1,7 @@
 # prenatal-care-toolkit (`pctk`)
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/herrrickshaw/prenatal-care-toolkit/blob/main/notebooks/colab_test.ipynb)
+
 [![CI](https://github.com/herrrickshaw/prenatal-care-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/herrrickshaw/prenatal-care-toolkit/actions/workflows/ci.yml)
 [![Docker](https://github.com/herrrickshaw/prenatal-care-toolkit/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/herrrickshaw/prenatal-care-toolkit/actions/workflows/docker-publish.yml)
 [![GHCR](https://img.shields.io/badge/ghcr.io-prenatal--care--toolkit-2496ED?logo=docker&logoColor=white)](https://github.com/herrrickshaw/prenatal-care-toolkit/pkgs/container/prenatal-care-toolkit)

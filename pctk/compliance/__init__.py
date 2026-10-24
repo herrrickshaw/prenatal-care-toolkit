@@ -5,13 +5,13 @@ requires every facility running a prenatal ultrasound to:
   * be registered, with each machine on the registration,
   * record a Form F for every pregnancy scan (referral reason, referring
     doctor, etc.),
-  * retain records (commonly 2 years) for inspection.
+  * retain records for at least 2 years, and until any proceedings are
+    finally disposed of (s.29(1)), for inspection.
 
 This module provides a small data model and an auditor's rule engine that
 flags the gaps a PCPNDT Appropriate Authority looks for:
   * scans with a missing / incomplete Form F,
   * scans on an unregistered or lapsed machine,
-  * records past their retention window,
   * facilities whose Form-F completeness is poor.
 
 Pure validation logic - no imaging, no sex.

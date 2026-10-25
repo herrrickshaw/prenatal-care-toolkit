@@ -8,6 +8,7 @@ list of findings plus a per-facility summary.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from typing import Dict, Iterable, List, Optional
@@ -73,6 +74,21 @@ class Finding:
     detail: str
 
 
+# Words that carry no clinical reason on their own. An indication made only of
+# these (after dropping punctuation) is flagged; any other word - "anomaly",
+# "bleeding", "IUGR" - makes it clinical. This is a heuristic red flag, not a
+# check against the Act's list of permissible indications.
+_VAGUE_INDICATION_WORDS = frozenset({
+    "na", "n", "a", "nil", "none", "no", "routine", "checkup", "check", "up",
+    "general", "scan", "usg", "ultrasound", "test", "for", "the",
+})
+
+
+def _is_vague_indication(text: str) -> bool:
+    words = re.sub(r"[^a-z0-9]+", " ", text.lower()).split()
+    return all(w in _VAGUE_INDICATION_WORDS for w in words)
+
+
 def validate_form_f(form: FormF) -> List[Finding]:
     """Field-level validation of a single Form F."""
     findings: List[Finding] = []
@@ -85,9 +101,7 @@ def validate_form_f(form: FormF) -> List[Finding]:
             )
         )
     # An empty / vague indication is a classic red flag for sex-selection.
-    if form.indication and form.indication.strip().lower() in {
-        "na", "n/a", "-", "none", "routine", "checkup", "."
-    }:
+    if form.indication and _is_vague_indication(form.indication):
         findings.append(
             Finding(
                 form.record_id, form.facility_id, "indication_vague", "medium",

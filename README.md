@@ -227,8 +227,11 @@ retention window. Returns findings plus a per-facility completeness summary.
 Digital PDFs are read directly (`pypdf`); scanned PDFs are rasterised
 (`pymupdf`) and OCR'd; images are OCR'd. Fields are pulled with label-aliased
 regexes — and the pregnant woman's **name is never stored**, only a one-way
-pseudonymous `patient_ref` hash. Extracted records drop straight into the
-auditor:
+pseudonymous `patient_ref` (a keyed HMAC-SHA256 of the name). Set a secret
+`PCTK_PSEUDONYM_KEY` to keep refs stable across runs; without it a random
+per-run key is used, so refs link forms within one run only. An unkeyed hash
+would be reversible with a list of common names. Extracted records drop
+straight into the auditor:
 
 ```bash
 pctk ingest-formf scan.pdf --append-csv forms.csv

@@ -194,17 +194,20 @@ def deidentify_dataset(ds: "Dataset", opts: Optional[DeidOptions] = None) -> "Da
     # 4) Catch-all: blank every Person Name VR we did not explicitly handle.
     #    (Tags in PHI_ACTIONS were already given their intended treatment -
     #    e.g. PatientName keeps its pseudonymous dummy - so skip them here.)
+    #    ds.walk() recurses into sequence items, where names also occur
+    #    (e.g. ScheduledPerformingPhysicianName inside a step sequence).
     if opts.blank_all_person_names:
-        for elem in ds:
+        def _blank_pn(dataset, elem):
             try:
                 tag = (elem.tag.group, elem.tag.element)
-                if tag in PHI_ACTIONS:
-                    continue
+                if dataset is ds and tag in PHI_ACTIONS:
+                    return
                 if elem.VR == "PN" and elem.value not in ("", None):
                     elem.value = ""
                     opts.log(f"blanked PN {elem.tag}")
             except Exception:
-                continue
+                return
+        ds.walk(_blank_pn)
 
     # 5) Private tags.
     if opts.remove_private_tags:

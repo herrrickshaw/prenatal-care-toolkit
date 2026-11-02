@@ -19,11 +19,11 @@ Column mappings are best-effort and documented per source; pass an explicit
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Sequence
+from typing import Dict, Optional, Sequence
 
 import pandas as pd
 
-from .analyze import NATURAL_PCT_FEMALE, _finalize_srb, from_aggregated_counts
+from .analyze import from_aggregated_counts
 
 
 def _resolve(df: pd.DataFrame, candidates: Sequence[str]) -> Optional[str]:

@@ -362,7 +362,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command")
 
     d1 = sub.add_parser("deid-dicom", help="de-identify DICOM header")
-    d1.add_argument("infile"); d1.add_argument("outfile")
+    d1.add_argument("infile")
+    d1.add_argument("outfile")
     d1.add_argument("--date-policy", choices=["keep", "blank", "shift"],
                     default="shift")
     d1.add_argument("--keep-private", action="store_true")
@@ -371,7 +372,8 @@ def build_parser() -> argparse.ArgumentParser:
     d1.set_defaults(func=cmd_deid_dicom)
 
     d2 = sub.add_parser("deid-image", help="redact burned-in text in an image")
-    d2.add_argument("infile"); d2.add_argument("outfile")
+    d2.add_argument("infile")
+    d2.add_argument("outfile")
     d2.add_argument("--method", choices=["blackout", "blur", "pixelate"],
                     default="blackout")
     d2.add_argument("--whole-image", action="store_true",
@@ -383,7 +385,8 @@ def build_parser() -> argparse.ArgumentParser:
     d2.set_defaults(func=cmd_deid_image)
 
     d3 = sub.add_parser("deid-frame", help="DICOM frame -> redacted image")
-    d3.add_argument("infile"); d3.add_argument("outfile")
+    d3.add_argument("infile")
+    d3.add_argument("outfile")
     d3.add_argument("--frame", type=int, default=0)
     d3.add_argument("--method", choices=["blackout", "blur", "pixelate"],
                     default="blackout")
@@ -411,7 +414,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.set_defaults(func=cmd_srb)
 
     c = sub.add_parser("compliance", help="PCPNDT Form-F audit")
-    c.add_argument("forms"); c.add_argument("registrations")
+    c.add_argument("forms")
+    c.add_argument("registrations")
     c.add_argument("-v", "--verbose", action="store_true")
     c.set_defaults(func=cmd_compliance)
 
@@ -452,13 +456,15 @@ def build_parser() -> argparse.ArgumentParser:
     pt.set_defaults(func=cmd_planes_train)
 
     pe = sub.add_parser("planes-eval", help="evaluate a saved plane model")
-    pe.add_argument("data"); pe.add_argument("--model", required=True)
+    pe.add_argument("data")
+    pe.add_argument("--model", required=True)
     pe.add_argument("--split", default="test")
     pe.add_argument("--backend", choices=["sklearn", "torch"], default="sklearn")
     pe.set_defaults(func=cmd_planes_eval)
 
     pp = sub.add_parser("planes-predict", help="classify one ultrasound frame")
-    pp.add_argument("image"); pp.add_argument("--model", required=True)
+    pp.add_argument("image")
+    pp.add_argument("--model", required=True)
     pp.add_argument("--backend", choices=["sklearn", "torch"], default="sklearn")
     pp.set_defaults(func=cmd_planes_predict)
 
@@ -471,11 +477,13 @@ def build_parser() -> argparse.ArgumentParser:
     hd.set_defaults(func=cmd_health_demo)
 
     ht = sub.add_parser("health-train", help="train CTG model on a fetal-health CSV")
-    ht.add_argument("data"); ht.add_argument("--out", default="health_model.joblib")
+    ht.add_argument("data")
+    ht.add_argument("--out", default="health_model.joblib")
     ht.set_defaults(func=cmd_health_train)
 
     hp = sub.add_parser("health-predict", help="classify one CTG record (JSON)")
-    hp.add_argument("json"); hp.add_argument("--model", required=True)
+    hp.add_argument("json")
+    hp.add_argument("--model", required=True)
     hp.set_defaults(func=cmd_health_predict)
 
     return p

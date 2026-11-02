@@ -10,7 +10,7 @@ learnable target so the pipeline runs and tests without a download.
 from __future__ import annotations
 
 import os
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd

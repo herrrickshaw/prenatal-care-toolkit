@@ -24,10 +24,26 @@ ocr-easy = ["easyocr>=1.7"]
 ocr-tesseract = ["pytesseract>=0.3.10"]
 pdf = ["pypdf>=4", "pymupdf>=1.23"]
 ml = ["scikit-learn>=1.1", "joblib>=1.2"]
-dev = ["pytest>=7", "scikit-learn>=1.1", "joblib>=1.2"]
+dev = ["pytest>=7", "ruff>=0.5", "scikit-learn>=1.1", "joblib>=1.2"]
 
 [project.scripts]
 pctk = "pctk.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["pctk*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+extend-exclude = [".venv", "notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501", "B011"]
+"examples/*" = ["E501", "F401"]
+"pctk/planes/*" = ["E731", "E741"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -13,9 +13,12 @@ Nothing here looks at anatomy; it only finds text.
 
 from __future__ import annotations
 
+import logging
 from typing import List, Optional, Tuple
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 Box = Tuple[int, int, int, int, str, float]  # x, y, w, h, text, confidence
 
@@ -98,24 +101,25 @@ class _TesseractBackend:
         return out
 
 
+# name -> backend class; insertion order is the auto-selection preference.
+_BACKENDS = {"easyocr": _EasyOCRBackend, "pytesseract": _TesseractBackend}
+
+
 def get_backend(prefer: Optional[str] = None,
                 languages: Optional[List[str]] = None):
     """Return the first available OCR backend, or ``None``.
 
     ``prefer`` can be ``"easyocr"`` or ``"pytesseract"`` to force a choice.
     """
-    order = [prefer] if prefer else ["easyocr", "pytesseract"]
-    order = [b for b in order if b]
-    if not prefer:
-        order = ["easyocr", "pytesseract"]
+    order = [prefer] if prefer else list(_BACKENDS)
     for name in order:
-        try:
-            if name == "easyocr":
-                return _EasyOCRBackend(languages)
-            if name == "pytesseract":
-                return _TesseractBackend(languages)
-        except Exception:
+        cls = _BACKENDS.get(name)
+        if cls is None:
             continue
+        try:
+            return cls(languages)
+        except Exception as exc:  # missing package, missing binary, model download
+            logger.debug("OCR backend %s unavailable: %s", name, exc)
     return None
 
 
@@ -159,6 +163,6 @@ def available_backends() -> List[str]:
         try:
             __import__(mod)
             found.append(name)
-        except Exception:
-            pass
+        except Exception as exc:  # absent or broken install
+            logger.debug("OCR module %s not importable: %s", mod, exc)
     return found

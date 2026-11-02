@@ -14,19 +14,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from datetime import date, datetime
 from typing import List, Optional
-
-
-def _parse_date(s: Optional[str]):
-    if not s:
-        return None
-    for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%Y%m%d", "%d/%m/%Y"):
-        try:
-            return datetime.strptime(str(s).strip(), fmt).date()
-        except ValueError:
-            continue
-    return None
 
 
 # --------------------------------------------------------------------------- #
@@ -78,46 +66,35 @@ def cmd_deid_frame(args) -> int:
 # --------------------------------------------------------------------------- #
 # Problem 2
 # --------------------------------------------------------------------------- #
-def cmd_srb(args) -> int:
-    from .srb import (load_births, compute_srb, flag_anomalies, SRBConfig,
-                      from_aggregated_counts, adapt, SOURCE_NOTES)
+def _build_srb_table(args, cfg, df):
+    """Pick the ingestion path: named adapter, aggregated counts, or per-birth."""
+    from .srb import SOURCE_NOTES, adapt, compute_srb, from_aggregated_counts
 
-    cfg = SRBConfig(
-        sex_col=args.sex_col,
-        count_col=args.count_col,
-        group_cols=args.group or ["district"],
-        min_births=args.min_births,
-        alpha=args.alpha,
-    )
-    df = load_births(args.infile)
-
-    # Choose ingestion path: named public-source adapter, aggregated wide
-    # counts, or the default per-birth (long) layout.
     if args.source:
         print(f"[srb] adapter '{args.source}': {SOURCE_NOTES.get(args.source, '')}")
         kwargs = {}
         if args.group:
             kwargs["group_cols"] = args.group
-        table = adapt(args.source, df, **kwargs)
-    elif args.males_col and args.females_col:
-        table = from_aggregated_counts(
+        return adapt(args.source, df, **kwargs)
+    if args.males_col and args.females_col:
+        return from_aggregated_counts(
             df, cfg.group_cols, args.males_col, args.females_col)
-    else:
-        table = compute_srb(df, cfg)
+    return compute_srb(df, cfg)
 
-    # Ratio-only sources carry no denominators -> no significance test.
-    if "counts_available" in table.columns and not table["counts_available"].any():
-        out = table.sort_values("srb_f_per_1000_m").reset_index(drop=True)
-        print(f"[srb] ratio-only source: {len(out)} units (no counts -> no "
-              f"significance test). Lowest female ratios first:")
-        cols = [c for c in out.columns if c != "counts_available"]
-        with_pd_display(out[cols], args.top)
-        if args.out:
-            out.to_csv(args.out, index=False)
-            print(f"[srb] full table -> {args.out}")
-        return 0
 
-    flagged = flag_anomalies(table, cfg)
+def _report_ratio_only(table, args) -> None:
+    """Ratio-only sources carry no denominators -> no significance test."""
+    out = table.sort_values("srb_f_per_1000_m").reset_index(drop=True)
+    print(f"[srb] ratio-only source: {len(out)} units (no counts -> no "
+          f"significance test). Lowest female ratios first:")
+    cols = [c for c in out.columns if c != "counts_available"]
+    with_pd_display(out[cols], args.top)
+    if args.out:
+        out.to_csv(args.out, index=False)
+        print(f"[srb] full table -> {args.out}")
+
+
+def _report_flagged(flagged, cfg, args) -> None:
     metric_cols = ["females", "males", "total", "pct_female",
                    "srb_f_per_1000_m", "expected_females", "female_deficit",
                    "p_value", "significant"]
@@ -132,6 +109,24 @@ def cmd_srb(args) -> int:
     if args.out:
         flagged.to_csv(args.out, index=False)
         print(f"[srb] full table -> {args.out}")
+
+
+def cmd_srb(args) -> int:
+    from .srb import SRBConfig, flag_anomalies, load_births
+
+    cfg = SRBConfig(
+        sex_col=args.sex_col,
+        count_col=args.count_col,
+        group_cols=args.group or ["district"],
+        min_births=args.min_births,
+        alpha=args.alpha,
+    )
+    table = _build_srb_table(args, cfg, load_births(args.infile))
+
+    if "counts_available" in table.columns and not table["counts_available"].any():
+        _report_ratio_only(table, args)
+        return 0
+    _report_flagged(flag_anomalies(table, cfg), cfg, args)
     return 0
 
 
@@ -147,34 +142,11 @@ def with_pd_display(df, top: int) -> None:
 # Problem 3
 # --------------------------------------------------------------------------- #
 def cmd_compliance(args) -> int:
-    import csv
-    from .compliance import FormF, MachineRegistration, audit_records
+    from .compliance import audit_records
+    from .compliance.io import load_forms_csv, load_registrations_csv
 
-    forms: List[FormF] = []
-    with open(args.forms, newline="") as fh:
-        for i, row in enumerate(csv.DictReader(fh)):
-            ga = row.get("gestational_age_weeks") or ""
-            forms.append(FormF(
-                patient_ref=row.get("patient_ref", ""),
-                facility_id=row.get("facility_id", ""),
-                machine_id=row.get("machine_id", ""),
-                scan_date=_parse_date(row.get("scan_date")),
-                referring_doctor=row.get("referring_doctor", ""),
-                indication=row.get("indication", ""),
-                gestational_age_weeks=float(ga) if ga else None,
-                performed_by=row.get("performed_by", ""),
-                record_id=row.get("record_id", f"row{i}"),
-            ))
-
-    regs: List[MachineRegistration] = []
-    with open(args.registrations, newline="") as fh:
-        for row in csv.DictReader(fh):
-            regs.append(MachineRegistration(
-                machine_id=row.get("machine_id", ""),
-                facility_id=row.get("facility_id", ""),
-                registered_from=_parse_date(row.get("registered_from")) or date.min,
-                registered_to=_parse_date(row.get("registered_to")),
-            ))
+    forms = load_forms_csv(args.forms)
+    regs = load_registrations_csv(args.registrations)
 
     result = audit_records(forms, regs)
     c = result["counts"]
@@ -197,6 +169,7 @@ def cmd_compliance(args) -> int:
 # --------------------------------------------------------------------------- #
 def cmd_ingest_formf(args) -> int:
     from .compliance import ingest_form_f, validate_form_f
+    from .compliance.io import append_form_csv
 
     form, raw = ingest_form_f(
         args.infile,
@@ -216,24 +189,9 @@ def cmd_ingest_formf(args) -> int:
     for fn in findings:
         print(f"   [{fn.severity}] {fn.rule}: {fn.detail}")
     if args.append_csv:
-        _append_form_csv(args.append_csv, form)
+        append_form_csv(args.append_csv, form)
         print(f"   -> appended to {args.append_csv}")
     return 0
-
-
-def _append_form_csv(path: str, form) -> None:
-    import csv
-    import os
-    header = ["record_id", "facility_id", "machine_id", "scan_date",
-              "referring_doctor", "indication", "gestational_age_weeks",
-              "performed_by", "patient_ref"]
-    exists = os.path.exists(path)
-    with open(path, "a", newline="") as fh:
-        w = csv.writer(fh)
-        if not exists:
-            w.writerow(header)
-        w.writerow([getattr(form, h) if getattr(form, h) is not None else ""
-                    for h in header])
 
 
 def cmd_biometry(args) -> int:

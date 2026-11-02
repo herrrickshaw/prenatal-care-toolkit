@@ -8,8 +8,8 @@ list of findings plus a per-facility summary.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from dataclasses import dataclass
+from datetime import date
 from typing import Dict, Iterable, List, Optional
 
 
@@ -73,6 +73,13 @@ class Finding:
     detail: str
 
 
+# Indications that carry no clinical information (a classic sex-selection red flag).
+VAGUE_INDICATIONS = frozenset({"na", "n/a", "-", "none", "routine", "checkup", "."})
+# Plausible gestational-age window (weeks) for a prenatal scan.
+GA_MIN_WEEKS = 3
+GA_MAX_WEEKS = 45
+
+
 def validate_form_f(form: FormF) -> List[Finding]:
     """Field-level validation of a single Form F."""
     findings: List[Finding] = []
@@ -84,10 +91,7 @@ def validate_form_f(form: FormF) -> List[Finding]:
                 f"missing required fields: {', '.join(miss)}",
             )
         )
-    # An empty / vague indication is a classic red flag for sex-selection.
-    if form.indication and form.indication.strip().lower() in {
-        "na", "n/a", "-", "none", "routine", "checkup", "."
-    }:
+    if form.indication and form.indication.strip().lower() in VAGUE_INDICATIONS:
         findings.append(
             Finding(
                 form.record_id, form.facility_id, "indication_vague", "medium",
@@ -95,7 +99,7 @@ def validate_form_f(form: FormF) -> List[Finding]:
             )
         )
     if (form.gestational_age_weeks is not None
-            and not (3 <= form.gestational_age_weeks <= 45)):
+            and not (GA_MIN_WEEKS <= form.gestational_age_weeks <= GA_MAX_WEEKS)):
         findings.append(
             Finding(
                 form.record_id, form.facility_id, "ga_out_of_range", "low",
@@ -103,6 +107,55 @@ def validate_form_f(form: FormF) -> List[Finding]:
             )
         )
     return findings
+
+
+def index_registrations(
+    registrations: Iterable[MachineRegistration],
+) -> Dict[str, List[MachineRegistration]]:
+    """Group registrations by ``machine_id``."""
+    index: Dict[str, List[MachineRegistration]] = {}
+    for r in registrations:
+        index.setdefault(r.machine_id, []).append(r)
+    return index
+
+
+def check_registration(
+    form: FormF, reg_index: Dict[str, List[MachineRegistration]]
+) -> Optional[Finding]:
+    """Finding if the scan date is not covered by a valid machine registration."""
+    if form.scan_date is None:
+        return None
+    regs = reg_index.get(form.machine_id, [])
+    if any(r.valid_on(form.scan_date) for r in regs):
+        return None
+    return Finding(
+        form.record_id, form.facility_id, "machine_unregistered", "high",
+        f"machine {form.machine_id!r} not validly registered on {form.scan_date}",
+    )
+
+
+def check_retention(
+    form: FormF, today: date, retention_years: int
+) -> Optional[Finding]:
+    """Finding if the record is older than the retention window."""
+    if form.scan_date is None:
+        return None
+    # NB: raises ValueError for a 29-Feb scan date when the target year is not a
+    # leap year (pre-existing behaviour, preserved by the refactor).
+    keep_until = form.scan_date.replace(year=form.scan_date.year + retention_years)
+    if today <= keep_until:
+        return None
+    return Finding(
+        form.record_id, form.facility_id, "retention_expired", "low",
+        f"record past {retention_years}y retention "
+        f"(scan {form.scan_date}, keep until {keep_until})",
+    )
+
+
+def _completeness_pct(counts: Dict[str, int]) -> float:
+    if not counts["total"]:
+        return 0.0
+    return round(100.0 * (counts["total"] - counts["incomplete"]) / counts["total"], 1)
 
 
 def audit_records(
@@ -116,9 +169,7 @@ def audit_records(
     Returns ``{"findings": [...], "facility_summary": {...}, "counts": {...}}``.
     """
     today = today or date.today()
-    reg_index: Dict[str, List[MachineRegistration]] = {}
-    for r in registrations:
-        reg_index.setdefault(r.machine_id, []).append(r)
+    reg_index = index_registrations(registrations)
 
     findings: List[Finding] = []
     per_facility: Dict[str, Dict[str, int]] = {}
@@ -131,54 +182,29 @@ def audit_records(
         )
         fac["total"] += 1
 
-        # 1) Field validation.
-        fvs = validate_form_f(form)
-        findings.extend(fvs)
-        if any(f.rule == "form_f_incomplete" for f in fvs):
+        field_findings = validate_form_f(form)
+        findings.extend(field_findings)
+        if any(f.rule == "form_f_incomplete" for f in field_findings):
             fac["incomplete"] += 1
 
-        # 2) Machine registration check.
-        regs = reg_index.get(form.machine_id, [])
-        if form.scan_date is not None:
-            if not any(r.valid_on(form.scan_date) for r in regs):
-                fac["unregistered"] += 1
-                findings.append(
-                    Finding(
-                        form.record_id, form.facility_id,
-                        "machine_unregistered", "high",
-                        f"machine {form.machine_id!r} not validly registered "
-                        f"on {form.scan_date}",
-                    )
-                )
+        unregistered = check_registration(form, reg_index)
+        if unregistered:
+            fac["unregistered"] += 1
+            findings.append(unregistered)
 
-        # 3) Retention window check.
-        if form.scan_date is not None:
-            keep_until = form.scan_date.replace(
-                year=form.scan_date.year + retention_years
-            )
-            if today > keep_until:
-                fac["expired_retention"] += 1
-                findings.append(
-                    Finding(
-                        form.record_id, form.facility_id,
-                        "retention_expired", "low",
-                        f"record past {retention_years}y retention "
-                        f"(scan {form.scan_date}, keep until {keep_until})",
-                    )
-                )
+        expired = check_retention(form, today, retention_years)
+        if expired:
+            fac["expired_retention"] += 1
+            findings.append(expired)
 
-    # Facility-level completeness ratio.
-    for fac, c in per_facility.items():
-        c["completeness_pct"] = round(
-            100.0 * (c["total"] - c["incomplete"]) / c["total"], 1
-        ) if c["total"] else 0.0
+    for counts in per_facility.values():
+        counts["completeness_pct"] = _completeness_pct(counts)
 
     counts = {
         "records": len(forms),
         "findings": len(findings),
-        "high": sum(1 for f in findings if f.severity == "high"),
-        "medium": sum(1 for f in findings if f.severity == "medium"),
-        "low": sum(1 for f in findings if f.severity == "low"),
+        **{sev: sum(1 for f in findings if f.severity == sev)
+           for sev in ("high", "medium", "low")},
     }
     return {
         "findings": findings,

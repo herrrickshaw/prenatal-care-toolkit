@@ -26,6 +26,9 @@ jobs:
       - name: Install package (with OCR + PDF + ML + dev extras)
         run: pip install -e ".[dev,ocr-tesseract,pdf,ml]"
 
+      - name: Lint
+        run: ruff check .
+
       - name: Generate sample data
         run: |
           python examples/make_sample_data.py

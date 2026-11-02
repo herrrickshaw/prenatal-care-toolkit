@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+- Behaviour-preserving refactor (SDLC pass): `deidentify_dataset`, `audit_records`,
+  `redact_array`, `cmd_srb` and `cmd_compliance` split into small functions; Form-F CSV I/O moved to
+  `pctk.compliance.io`; redaction methods now a registry; magic numbers named; silent
+  `except Exception` blocks narrowed or logged. Characterisation tests pin the old output.
+
+### Added
+- `tests/test_characterisation.py`, `tests/test_units.py`, ruff config and CI lint step.
+
 ## [0.3.1] - 2026-07-02
 
 ### Fixed

@@ -1,0 +1,2968 @@
+{
+ "cli": {
+  "append_file": "record_id,facility_id,machine_id,scan_date,referring_doctor,indication,gestational_age_weeks,performed_by,patient_ref\nscan_9,FAC-A,US-100,2026-06-27,Dr A Mehta,Anomaly scan,19.0,Dr S Rao,PT-9F3A529136\nscan_9,FAC-A,US-100,2026-06-27,Dr A Mehta,Anomaly scan,19.0,Dr S Rao,PT-9F3A529136\n",
+  "backends": 0,
+  "biometry": {
+   "code": 0,
+   "err": "",
+   "out": "[biometry] gestational age\n   BPD  -> 19.90 w\n   HC   -> 19.61 w\n   AC   -> 20.25 w\n   FL   -> 19.26 w\n   composite GA: 19.75 w  (19w 5d)\n   estimated fetal weight (Hadlock): 312 g\n"
+  },
+  "biometry_partial": {
+   "code": 0,
+   "err": "",
+   "out": "[biometry] gestational age\n   BPD  -> 19.90 w\n   composite GA: 19.90 w  (19w 6d)\n"
+  },
+  "compliance": {
+   "code": 0,
+   "err": "",
+   "out": "[compliance] 3 records, 5 findings (high=3 medium=1 low=1)\n  facility completeness:\n    FAC-A          total=   2 complete= 50.0%  unregistered=1  expired=0\n    FAC-B          total=   1 complete=  0.0%  unregistered=0  expired=0\n"
+  },
+  "compliance_v": {
+   "code": 0,
+   "err": "",
+   "out": "[compliance] 3 records, 5 findings (high=3 medium=1 low=1)\n  facility completeness:\n    FAC-A          total=   2 complete= 50.0%  unregistered=1  expired=0\n    FAC-B          total=   1 complete=  0.0%  unregistered=0  expired=0\n    [high  ]          form_f_incomplete      missing required fields: referring_doctor, gestational_age_weeks\n    [medium]          indication_vague       non-clinical indication: 'routine'\n    [high  ]          machine_unregistered   machine 'US-900' not validly registered on 2025-03-10\n    [high  ] r3       form_f_incomplete      missing required fields: scan_date\n    [low   ] r3       ga_out_of_range        implausible gestational age: 70.0w\n"
+  },
+  "deid_dicom": {
+   "code": 0,
+   "err": "",
+   "out": "[deid-dicom] wrote <TMP>/out.dcm  (28 actions)\n   - remapped UID (8, 24)\n   - date-policy(blank) (8, 32)\n   - date-policy(blank) (8, 33)\n   - date-policy(blank) (8, 34)\n   - date-policy(blank) (8, 35)\n   - blanked (8, 48)\n   - dummied (8, 80)\n   - blanked (8, 128)\n   - removed (8, 129)\n   - blanked (8, 144)\n   - blanked (8, 4112)\n   - blanked (8, 4144)\n   - blanked (8, 4176)\n   - blanked (8, 4208)\n   - dummied (16, 16)\n   - dummied (16, 32)\n   - blanked (16, 48)\n   - removed (16, 4097)\n   - removed (16, 16384)\n   - removed (24, 4096)\n   - remapped UID (32, 13)\n   - remapped UID (32, 14)\n   - blanked (32, 16)\n   - remapped UID (32, 82)\n   - removed (32, 16384)\n   - blanked PatientSex\n   - blanked PN (0032,1032)\n   - removed private tags\n"
+  },
+  "deid_dicom_elements": [
+   [
+    "(0008,0016)",
+    "UI",
+    "1.2.840.10008.5.1.4.1.1.3.1"
+   ],
+   [
+    "(0008,0018)",
+    "UI",
+    "1.2.826.0.1.3680043.10.9999.128179542010811242863611797977479120"
+   ],
+   [
+    "(0008,0020)",
+    "DA",
+    ""
+   ],
+   [
+    "(0008,0021)",
+    "DA",
+    ""
+   ],
+   [
+    "(0008,0022)",
+    "DA",
+    ""
+   ],
+   [
+    "(0008,0023)",
+    "DA",
+    ""
+   ],
+   [
+    "(0008,0030)",
+    "TM",
+    ""
+   ],
+   [
+    "(0008,0050)",
+    "SH",
+    "ANON"
+   ],
+   [
+    "(0008,0060)",
+    "CS",
+    "US"
+   ],
+   [
+    "(0008,0080)",
+    "LO",
+    ""
+   ],
+   [
+    "(0008,0090)",
+    "PN",
+    ""
+   ],
+   [
+    "(0008,1010)",
+    "SH",
+    ""
+   ],
+   [
+    "(0008,1030)",
+    "LO",
+    ""
+   ],
+   [
+    "(0008,1050)",
+    "PN",
+    ""
+   ],
+   [
+    "(0008,1070)",
+    "PN",
+    ""
+   ],
+   [
+    "(0010,0010)",
+    "PN",
+    "ANON^4A58CEE7F4AC"
+   ],
+   [
+    "(0010,0020)",
+    "LO",
+    "ANON-4A58CEE7F4AC"
+   ],
+   [
+    "(0010,0030)",
+    "DA",
+    ""
+   ],
+   [
+    "(0010,0040)",
+    "CS",
+    ""
+   ],
+   [
+    "(0010,1010)",
+    "AS",
+    "027Y"
+   ],
+   [
+    "(0012,0062)",
+    "CS",
+    "YES"
+   ],
+   [
+    "(0012,0063)",
+    "LO",
+    "pctk PS3.15 basic subset v0.3.1"
+   ],
+   [
+    "(0020,000D)",
+    "UI",
+    "1.2.826.0.1.3680043.10.9999.642947635823146043183562940817021364"
+   ],
+   [
+    "(0020,000E)",
+    "UI",
+    "1.2.826.0.1.3680043.10.9999.651316849735860219429091630828256359"
+   ],
+   [
+    "(0020,0010)",
+    "SH",
+    ""
+   ],
+   [
+    "(0020,0052)",
+    "UI",
+    "1.2.826.0.1.3680043.10.9999.575766839101945705254432832114912642"
+   ],
+   [
+    "(0032,1032)",
+    "PN",
+    ""
+   ]
+  ],
+  "deid_image": {
+   "code": 0,
+   "err": "",
+   "out": "[deid-image] wrote <TMP>/o.png\n   - no OCR backend; using margin-band fallback\n"
+  },
+  "deid_image_sha": "6321da412c8eb8a5161ae0ee9ddfc7588e7e140e096c2cb8e489585fb0ec2ac1",
+  "ingest": {
+   "code": 0,
+   "err": "",
+   "out": "[ingest-formf] <TMP>/scan_9.pdf\n   record_id              = scan_9\n   patient_ref            = PT-9F3A529136\n   facility_id            = FAC-A\n   machine_id             = US-100\n   scan_date              = 2026-06-27\n   referring_doctor       = Dr A Mehta\n   indication             = Anomaly scan\n   gestational_age_weeks  = 19.0\n   performed_by           = Dr S Rao\n   -> appended to <TMP>/a.csv\n"
+  },
+  "ingest2": {
+   "code": 0,
+   "err": "",
+   "out": "[ingest-formf] <TMP>/scan_9.pdf\n   record_id              = scan_9\n   patient_ref            = PT-9F3A529136\n   facility_id            = FAC-A\n   machine_id             = US-100\n   scan_date              = 2026-06-27\n   referring_doctor       = Dr A Mehta\n   indication             = Anomaly scan\n   gestational_age_weeks  = 19.0\n   performed_by           = Dr S Rao\n   -> appended to <TMP>/a.csv\n"
+  },
+  "nocmd": 1,
+  "srb": {
+   "code": 0,
+   "err": "",
+   "out": "[srb] 3 units >= 30 births; 1 flagged at alpha=0.01\ndistrict  females  males  total  pct_female  srb_f_per_1000_m  female_deficit  p_value  significant\n       C       30     80    110       0.273               375            23.7 3.34e-06         True\n       A       40     60    100         0.4               667             8.8    0.048        False\n       B       55     55    110         0.5             1e+03            -1.3    0.636        False\n[srb] full table -> <TMP>/o.csv\n"
+  },
+  "srb_child06": {
+   "code": 0,
+   "err": "",
+   "out": "[srb] adapter 'child06': Census Primary Census Abstract 0-6 child population by sex (M_06/F_06). The canonical foeticide proxy; has counts -> full significance testing supported.\n[srb] 2 units >= 30 births; 1 flagged at alpha=0.01\nState District  females  males  total  pct_female  srb_f_per_1000_m  female_deficit  p_value  significant\n    S        A      800   1000   1800       0.444               800            78.4  0.00012         True\n    S        B      960   1000   1960        0.49               960            -3.5    0.572        False\n"
+  },
+  "srb_file": "district,females,males,total,pct_female,srb_f_per_1000_m,expected_females,female_deficit,p_value,significant\nC,30,80,110,0.2727272727272727,375.0,53.7,23.7,3.336163061937436e-06,True\nA,40,60,100,0.4,666.6666666666666,48.8,8.8,0.048020906292094226,False\nB,55,55,110,0.5,1000.0,53.7,-1.3,0.6359296201536325,False\n",
+  "srb_males": {
+   "code": 0,
+   "err": "",
+   "out": "[srb] 2 units >= 30 births; 1 flagged at alpha=0.01\nDistrict  females  males  total  pct_female  srb_f_per_1000_m  female_deficit  p_value  significant\n       A      800   1000   1800       0.444               800            78.4  0.00012         True\n       B      960   1000   1960        0.49               960            -3.5    0.572        False\n"
+  },
+  "srb_ratio": {
+   "code": 0,
+   "err": "",
+   "out": "[srb] adapter 'ratio': data.gov.in 'Sex Ratio at Birth' resources; usually ratio-only (females per 1000 males). No counts -> no significance test.\n[srb] ratio-only source: 2 units (no counts -> no significance test). Lowest female ratios first:\nDistrict  Sex Ratio at Birth  srb_f_per_1000_m  pct_female\n       A                 900               900       0.474\n       B                 950               950       0.487\n[srb] full table -> <TMP>/r.csv\n"
+  },
+  "srb_ratio_file": "District,Sex Ratio at Birth,srb_f_per_1000_m,pct_female,counts_available\nA,900,900,0.47368421052631576,False\nB,950,950,0.48717948717948717,False\n",
+  "version": {
+   "code": 0,
+   "err": "",
+   "out": "pctk 0.3.1\n"
+  }
+ },
+ "compliance": {
+  "empty": {
+   "findings": 0,
+   "high": 0,
+   "low": 0,
+   "medium": 0,
+   "records": 0
+  },
+  "missing": [
+   "facility_id",
+   "scan_date",
+   "referring_doctor",
+   "gestational_age_weeks"
+  ],
+  "ret1": {
+   "counts": {
+    "findings": 13,
+    "high": 3,
+    "low": 9,
+    "medium": 1,
+    "records": 8
+   },
+   "findings": [
+    [
+     "ok",
+     "FAC-A",
+     "retention_expired",
+     "low",
+     "record past 1y retention (scan 2025-03-10, keep until 2026-03-10)"
+    ],
+    [
+     "vague",
+     "FAC-A",
+     "indication_vague",
+     "medium",
+     "non-clinical indication: ' Routine '"
+    ],
+    [
+     "vague",
+     "FAC-A",
+     "retention_expired",
+     "low",
+     "record past 1y retention (scan 2025-03-10, keep until 2026-03-10)"
+    ],
+    [
+     "unreg",
+     "FAC-A",
+     "machine_unregistered",
+     "high",
+     "machine 'US-900' not validly registered on 2025-03-10"
+    ],
+    [
+     "unreg",
+     "FAC-A",
+     "retention_expired",
+     "low",
+     "record past 1y retention (scan 2025-03-10, keep until 2026-03-10)"
+    ],
+    [
+     "lapsed",
+     "FAC-B",
+     "machine_unregistered",
+     "high",
+     "machine 'US-200' not validly registered on 2024-09-01"
+    ],
+    [
+     "lapsed",
+     "FAC-B",
+     "retention_expired",
+     "low",
+     "record past 1y retention (scan 2024-09-01, keep until 2025-09-01)"
+    ],
+    [
+     "old",
+     "FAC-B",
+     "retention_expired",
+     "low",
+     "record past 1y retention (scan 2021-05-05, keep until 2022-05-05)"
+    ],
+    [
+     "noga",
+     "",
+     "form_f_incomplete",
+     "high",
+     "missing required fields: facility_id, scan_date, referring_doctor, gestational_age_weeks"
+    ],
+    [
+     "ga",
+     "FAC-A",
+     "ga_out_of_range",
+     "low",
+     "implausible gestational age: 60w"
+    ],
+    [
+     "ga",
+     "FAC-A",
+     "retention_expired",
+     "low",
+     "record past 1y retention (scan 2025-01-01, keep until 2026-01-01)"
+    ],
+    [
+     "ga2",
+     "FAC-A",
+     "ga_out_of_range",
+     "low",
+     "implausible gestational age: 2w"
+    ],
+    [
+     "ga2",
+     "FAC-A",
+     "retention_expired",
+     "low",
+     "record past 1y retention (scan 2025-01-01, keep until 2026-01-01)"
+    ]
+   ],
+   "summary": {
+    "<unknown>": {
+     "completeness_pct": 0.0,
+     "expired_retention": 0,
+     "incomplete": 1,
+     "total": 1,
+     "unregistered": 0
+    },
+    "FAC-A": {
+     "completeness_pct": 100.0,
+     "expired_retention": 5,
+     "incomplete": 0,
+     "total": 5,
+     "unregistered": 1
+    },
+    "FAC-B": {
+     "completeness_pct": 100.0,
+     "expired_retention": 2,
+     "incomplete": 0,
+     "total": 2,
+     "unregistered": 1
+    }
+   }
+  },
+  "ret2": {
+   "counts": {
+    "findings": 7,
+    "high": 3,
+    "low": 3,
+    "medium": 1,
+    "records": 8
+   },
+   "findings": [
+    [
+     "vague",
+     "FAC-A",
+     "indication_vague",
+     "medium",
+     "non-clinical indication: ' Routine '"
+    ],
+    [
+     "unreg",
+     "FAC-A",
+     "machine_unregistered",
+     "high",
+     "machine 'US-900' not validly registered on 2025-03-10"
+    ],
+    [
+     "lapsed",
+     "FAC-B",
+     "machine_unregistered",
+     "high",
+     "machine 'US-200' not validly registered on 2024-09-01"
+    ],
+    [
+     "old",
+     "FAC-B",
+     "retention_expired",
+     "low",
+     "record past 2y retention (scan 2021-05-05, keep until 2023-05-05)"
+    ],
+    [
+     "noga",
+     "",
+     "form_f_incomplete",
+     "high",
+     "missing required fields: facility_id, scan_date, referring_doctor, gestational_age_weeks"
+    ],
+    [
+     "ga",
+     "FAC-A",
+     "ga_out_of_range",
+     "low",
+     "implausible gestational age: 60w"
+    ],
+    [
+     "ga2",
+     "FAC-A",
+     "ga_out_of_range",
+     "low",
+     "implausible gestational age: 2w"
+    ]
+   ],
+   "summary": {
+    "<unknown>": {
+     "completeness_pct": 0.0,
+     "expired_retention": 0,
+     "incomplete": 1,
+     "total": 1,
+     "unregistered": 0
+    },
+    "FAC-A": {
+     "completeness_pct": 100.0,
+     "expired_retention": 0,
+     "incomplete": 0,
+     "total": 5,
+     "unregistered": 1
+    },
+    "FAC-B": {
+     "completeness_pct": 100.0,
+     "expired_retention": 1,
+     "incomplete": 0,
+     "total": 2,
+     "unregistered": 1
+    }
+   }
+  },
+  "ret5": {
+   "counts": {
+    "findings": 7,
+    "high": 3,
+    "low": 3,
+    "medium": 1,
+    "records": 8
+   },
+   "findings": [
+    [
+     "vague",
+     "FAC-A",
+     "indication_vague",
+     "medium",
+     "non-clinical indication: ' Routine '"
+    ],
+    [
+     "unreg",
+     "FAC-A",
+     "machine_unregistered",
+     "high",
+     "machine 'US-900' not validly registered on 2025-03-10"
+    ],
+    [
+     "lapsed",
+     "FAC-B",
+     "machine_unregistered",
+     "high",
+     "machine 'US-200' not validly registered on 2024-09-01"
+    ],
+    [
+     "old",
+     "FAC-B",
+     "retention_expired",
+     "low",
+     "record past 5y retention (scan 2021-05-05, keep until 2026-05-05)"
+    ],
+    [
+     "noga",
+     "",
+     "form_f_incomplete",
+     "high",
+     "missing required fields: facility_id, scan_date, referring_doctor, gestational_age_weeks"
+    ],
+    [
+     "ga",
+     "FAC-A",
+     "ga_out_of_range",
+     "low",
+     "implausible gestational age: 60w"
+    ],
+    [
+     "ga2",
+     "FAC-A",
+     "ga_out_of_range",
+     "low",
+     "implausible gestational age: 2w"
+    ]
+   ],
+   "summary": {
+    "<unknown>": {
+     "completeness_pct": 0.0,
+     "expired_retention": 0,
+     "incomplete": 1,
+     "total": 1,
+     "unregistered": 0
+    },
+    "FAC-A": {
+     "completeness_pct": 100.0,
+     "expired_retention": 0,
+     "incomplete": 0,
+     "total": 5,
+     "unregistered": 1
+    },
+    "FAC-B": {
+     "completeness_pct": 100.0,
+     "expired_retention": 1,
+     "incomplete": 0,
+     "total": 2,
+     "unregistered": 1
+    }
+   }
+  },
+  "validate": [
+   [
+    "form_f_incomplete",
+    "missing required fields: facility_id, scan_date, referring_doctor, gestational_age_weeks"
+   ]
+  ]
+ },
+ "dicom": {
+  "blank": {
+   "elements": [
+    [
+     "(0008,0018)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.128179542010811242863611797977479120"
+    ],
+    [
+     "(0008,0020)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0021)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0022)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0023)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0030)",
+     "TM",
+     ""
+    ],
+    [
+     "(0008,0050)",
+     "SH",
+     "ANON"
+    ],
+    [
+     "(0008,0060)",
+     "CS",
+     "US"
+    ],
+    [
+     "(0008,0080)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,0090)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0008,1030)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,1050)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1070)",
+     "PN",
+     ""
+    ],
+    [
+     "(0010,0010)",
+     "PN",
+     "ANON^4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0020)",
+     "LO",
+     "ANON-4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0030)",
+     "DA",
+     ""
+    ],
+    [
+     "(0010,0040)",
+     "CS",
+     ""
+    ],
+    [
+     "(0010,1010)",
+     "AS",
+     "027Y"
+    ],
+    [
+     "(0012,0062)",
+     "CS",
+     "YES"
+    ],
+    [
+     "(0012,0063)",
+     "LO",
+     "pctk PS3.15 basic subset v0.3.1"
+    ],
+    [
+     "(0020,000D)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.642947635823146043183562940817021364"
+    ],
+    [
+     "(0020,000E)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.651316849735860219429091630828256359"
+    ],
+    [
+     "(0020,0010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0020,0052)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.575766839101945705254432832114912642"
+    ],
+    [
+     "(0032,1032)",
+     "PN",
+     ""
+    ]
+   ],
+   "log": [
+    "remapped UID (8, 24)",
+    "date-policy(blank) (8, 32)",
+    "date-policy(blank) (8, 33)",
+    "date-policy(blank) (8, 34)",
+    "date-policy(blank) (8, 35)",
+    "blanked (8, 48)",
+    "dummied (8, 80)",
+    "blanked (8, 128)",
+    "removed (8, 129)",
+    "blanked (8, 144)",
+    "blanked (8, 4112)",
+    "blanked (8, 4144)",
+    "blanked (8, 4176)",
+    "blanked (8, 4208)",
+    "dummied (16, 16)",
+    "dummied (16, 32)",
+    "blanked (16, 48)",
+    "removed (16, 4097)",
+    "removed (16, 16384)",
+    "removed (24, 4096)",
+    "remapped UID (32, 13)",
+    "remapped UID (32, 14)",
+    "blanked (32, 16)",
+    "remapped UID (32, 82)",
+    "removed (32, 16384)",
+    "blanked PatientSex",
+    "blanked PN (0032,1032)",
+    "removed private tags"
+   ]
+  },
+  "default": {
+   "elements": [
+    [
+     "(0008,0018)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.128179542010811242863611797977479120"
+    ],
+    [
+     "(0008,0020)",
+     "DA",
+     "20260823"
+    ],
+    [
+     "(0008,0021)",
+     "DA",
+     "20260823"
+    ],
+    [
+     "(0008,0022)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0023)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0030)",
+     "TM",
+     ""
+    ],
+    [
+     "(0008,0050)",
+     "SH",
+     "ANON"
+    ],
+    [
+     "(0008,0060)",
+     "CS",
+     "US"
+    ],
+    [
+     "(0008,0080)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,0090)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0008,1030)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,1050)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1070)",
+     "PN",
+     ""
+    ],
+    [
+     "(0010,0010)",
+     "PN",
+     "ANON^4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0020)",
+     "LO",
+     "ANON-4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0030)",
+     "DA",
+     ""
+    ],
+    [
+     "(0010,0040)",
+     "CS",
+     ""
+    ],
+    [
+     "(0010,1010)",
+     "AS",
+     "027Y"
+    ],
+    [
+     "(0012,0062)",
+     "CS",
+     "YES"
+    ],
+    [
+     "(0012,0063)",
+     "LO",
+     "pctk PS3.15 basic subset v0.3.1"
+    ],
+    [
+     "(0020,000D)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.642947635823146043183562940817021364"
+    ],
+    [
+     "(0020,000E)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.651316849735860219429091630828256359"
+    ],
+    [
+     "(0020,0010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0020,0052)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.575766839101945705254432832114912642"
+    ],
+    [
+     "(0032,1032)",
+     "PN",
+     ""
+    ]
+   ],
+   "log": [
+    "remapped UID (8, 24)",
+    "date-policy(shift) (8, 32)",
+    "date-policy(shift) (8, 33)",
+    "date-policy(shift) (8, 34)",
+    "date-policy(shift) (8, 35)",
+    "blanked (8, 48)",
+    "dummied (8, 80)",
+    "blanked (8, 128)",
+    "removed (8, 129)",
+    "blanked (8, 144)",
+    "blanked (8, 4112)",
+    "blanked (8, 4144)",
+    "blanked (8, 4176)",
+    "blanked (8, 4208)",
+    "dummied (16, 16)",
+    "dummied (16, 32)",
+    "blanked (16, 48)",
+    "removed (16, 4097)",
+    "removed (16, 16384)",
+    "removed (24, 4096)",
+    "remapped UID (32, 13)",
+    "remapped UID (32, 14)",
+    "blanked (32, 16)",
+    "remapped UID (32, 82)",
+    "removed (32, 16384)",
+    "blanked PatientSex",
+    "blanked PN (0032,1032)",
+    "removed private tags"
+   ]
+  },
+  "fixed_shift": {
+   "elements": [
+    [
+     "(0008,0018)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.128179542010811242863611797977479120"
+    ],
+    [
+     "(0008,0020)",
+     "DA",
+     "20260311"
+    ],
+    [
+     "(0008,0021)",
+     "DA",
+     "20260311"
+    ],
+    [
+     "(0008,0022)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0023)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0030)",
+     "TM",
+     ""
+    ],
+    [
+     "(0008,0050)",
+     "SH",
+     "ANON"
+    ],
+    [
+     "(0008,0060)",
+     "CS",
+     "US"
+    ],
+    [
+     "(0008,0080)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,0090)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0008,1030)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,1050)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1070)",
+     "PN",
+     ""
+    ],
+    [
+     "(0010,0010)",
+     "PN",
+     "ANON^4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0020)",
+     "LO",
+     "ANON-4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0030)",
+     "DA",
+     ""
+    ],
+    [
+     "(0010,0040)",
+     "CS",
+     ""
+    ],
+    [
+     "(0010,1010)",
+     "AS",
+     "027Y"
+    ],
+    [
+     "(0012,0062)",
+     "CS",
+     "YES"
+    ],
+    [
+     "(0012,0063)",
+     "LO",
+     "pctk PS3.15 basic subset v0.3.1"
+    ],
+    [
+     "(0020,000D)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.642947635823146043183562940817021364"
+    ],
+    [
+     "(0020,000E)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.651316849735860219429091630828256359"
+    ],
+    [
+     "(0020,0010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0020,0052)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.575766839101945705254432832114912642"
+    ],
+    [
+     "(0032,1032)",
+     "PN",
+     ""
+    ]
+   ],
+   "log": [
+    "remapped UID (8, 24)",
+    "date-policy(shift) (8, 32)",
+    "date-policy(shift) (8, 33)",
+    "date-policy(shift) (8, 34)",
+    "date-policy(shift) (8, 35)",
+    "blanked (8, 48)",
+    "dummied (8, 80)",
+    "blanked (8, 128)",
+    "removed (8, 129)",
+    "blanked (8, 144)",
+    "blanked (8, 4112)",
+    "blanked (8, 4144)",
+    "blanked (8, 4176)",
+    "blanked (8, 4208)",
+    "dummied (16, 16)",
+    "dummied (16, 32)",
+    "blanked (16, 48)",
+    "removed (16, 4097)",
+    "removed (16, 16384)",
+    "removed (24, 4096)",
+    "remapped UID (32, 13)",
+    "remapped UID (32, 14)",
+    "blanked (32, 16)",
+    "remapped UID (32, 82)",
+    "removed (32, 16384)",
+    "blanked PatientSex",
+    "blanked PN (0032,1032)",
+    "removed private tags"
+   ]
+  },
+  "keep": {
+   "elements": [
+    [
+     "(0008,0018)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.128179542010811242863611797977479120"
+    ],
+    [
+     "(0008,0020)",
+     "DA",
+     "20260301"
+    ],
+    [
+     "(0008,0021)",
+     "DA",
+     "20260301"
+    ],
+    [
+     "(0008,0022)",
+     "DA",
+     "bad"
+    ],
+    [
+     "(0008,0023)",
+     "DA",
+     "20260229"
+    ],
+    [
+     "(0008,0030)",
+     "TM",
+     ""
+    ],
+    [
+     "(0008,0050)",
+     "SH",
+     "ANON"
+    ],
+    [
+     "(0008,0060)",
+     "CS",
+     "US"
+    ],
+    [
+     "(0008,0080)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,0090)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0008,1030)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,1050)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1070)",
+     "PN",
+     ""
+    ],
+    [
+     "(0010,0010)",
+     "PN",
+     "ANON^4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0020)",
+     "LO",
+     "ANON-4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0030)",
+     "DA",
+     ""
+    ],
+    [
+     "(0010,0040)",
+     "CS",
+     ""
+    ],
+    [
+     "(0010,1010)",
+     "AS",
+     "027Y"
+    ],
+    [
+     "(0012,0062)",
+     "CS",
+     "YES"
+    ],
+    [
+     "(0012,0063)",
+     "LO",
+     "pctk PS3.15 basic subset v0.3.1"
+    ],
+    [
+     "(0020,000D)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.642947635823146043183562940817021364"
+    ],
+    [
+     "(0020,000E)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.651316849735860219429091630828256359"
+    ],
+    [
+     "(0020,0010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0020,0052)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.575766839101945705254432832114912642"
+    ],
+    [
+     "(0032,1032)",
+     "PN",
+     ""
+    ]
+   ],
+   "log": [
+    "remapped UID (8, 24)",
+    "date-policy(keep) (8, 32)",
+    "date-policy(keep) (8, 33)",
+    "date-policy(keep) (8, 34)",
+    "date-policy(keep) (8, 35)",
+    "blanked (8, 48)",
+    "dummied (8, 80)",
+    "blanked (8, 128)",
+    "removed (8, 129)",
+    "blanked (8, 144)",
+    "blanked (8, 4112)",
+    "blanked (8, 4144)",
+    "blanked (8, 4176)",
+    "blanked (8, 4208)",
+    "dummied (16, 16)",
+    "dummied (16, 32)",
+    "blanked (16, 48)",
+    "removed (16, 4097)",
+    "removed (16, 16384)",
+    "removed (24, 4096)",
+    "remapped UID (32, 13)",
+    "remapped UID (32, 14)",
+    "blanked (32, 16)",
+    "remapped UID (32, 82)",
+    "removed (32, 16384)",
+    "blanked PatientSex",
+    "blanked PN (0032,1032)",
+    "removed private tags"
+   ]
+  },
+  "keep_priv_sex": {
+   "elements": [
+    [
+     "(0008,0018)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.128179542010811242863611797977479120"
+    ],
+    [
+     "(0008,0020)",
+     "DA",
+     "20260823"
+    ],
+    [
+     "(0008,0021)",
+     "DA",
+     "20260823"
+    ],
+    [
+     "(0008,0022)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0023)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0030)",
+     "TM",
+     ""
+    ],
+    [
+     "(0008,0050)",
+     "SH",
+     "ANON"
+    ],
+    [
+     "(0008,0060)",
+     "CS",
+     "US"
+    ],
+    [
+     "(0008,0080)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,0090)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0008,1030)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,1050)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1070)",
+     "PN",
+     ""
+    ],
+    [
+     "(0009,0010)",
+     "LO",
+     "PRIV"
+    ],
+    [
+     "(0009,1001)",
+     "LO",
+     "secret"
+    ],
+    [
+     "(0010,0010)",
+     "PN",
+     "ANON^4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0020)",
+     "LO",
+     "ANON-4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0030)",
+     "DA",
+     ""
+    ],
+    [
+     "(0010,0040)",
+     "CS",
+     "F"
+    ],
+    [
+     "(0010,1010)",
+     "AS",
+     "027Y"
+    ],
+    [
+     "(0012,0062)",
+     "CS",
+     "YES"
+    ],
+    [
+     "(0012,0063)",
+     "LO",
+     "pctk PS3.15 basic subset v0.3.1"
+    ],
+    [
+     "(0020,000D)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.642947635823146043183562940817021364"
+    ],
+    [
+     "(0020,000E)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.651316849735860219429091630828256359"
+    ],
+    [
+     "(0020,0010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0020,0052)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.575766839101945705254432832114912642"
+    ],
+    [
+     "(0032,1032)",
+     "PN",
+     ""
+    ]
+   ],
+   "log": [
+    "remapped UID (8, 24)",
+    "date-policy(shift) (8, 32)",
+    "date-policy(shift) (8, 33)",
+    "date-policy(shift) (8, 34)",
+    "date-policy(shift) (8, 35)",
+    "blanked (8, 48)",
+    "dummied (8, 80)",
+    "blanked (8, 128)",
+    "removed (8, 129)",
+    "blanked (8, 144)",
+    "blanked (8, 4112)",
+    "blanked (8, 4144)",
+    "blanked (8, 4176)",
+    "blanked (8, 4208)",
+    "dummied (16, 16)",
+    "dummied (16, 32)",
+    "blanked (16, 48)",
+    "removed (16, 4097)",
+    "removed (16, 16384)",
+    "removed (24, 4096)",
+    "remapped UID (32, 13)",
+    "remapped UID (32, 14)",
+    "blanked (32, 16)",
+    "remapped UID (32, 82)",
+    "removed (32, 16384)",
+    "blanked PN (0032,1032)"
+   ]
+  },
+  "no_ids": {
+   "elements": [
+    [
+     "(0008,0018)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.128179542010811242863611797977479120"
+    ],
+    [
+     "(0008,0020)",
+     "DA",
+     "20250713"
+    ],
+    [
+     "(0008,0021)",
+     "DA",
+     "20250713"
+    ],
+    [
+     "(0008,0022)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0023)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0030)",
+     "TM",
+     ""
+    ],
+    [
+     "(0008,0050)",
+     "SH",
+     "ANON"
+    ],
+    [
+     "(0008,0060)",
+     "CS",
+     "US"
+    ],
+    [
+     "(0008,0080)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,0090)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0008,1030)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,1050)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1070)",
+     "PN",
+     ""
+    ],
+    [
+     "(0010,0030)",
+     "DA",
+     ""
+    ],
+    [
+     "(0010,0040)",
+     "CS",
+     ""
+    ],
+    [
+     "(0010,1010)",
+     "AS",
+     "027Y"
+    ],
+    [
+     "(0012,0062)",
+     "CS",
+     "YES"
+    ],
+    [
+     "(0012,0063)",
+     "LO",
+     "pctk PS3.15 basic subset v0.3.1"
+    ],
+    [
+     "(0020,000D)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.642947635823146043183562940817021364"
+    ],
+    [
+     "(0020,000E)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.651316849735860219429091630828256359"
+    ],
+    [
+     "(0020,0010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0020,0052)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.575766839101945705254432832114912642"
+    ],
+    [
+     "(0032,1032)",
+     "PN",
+     ""
+    ]
+   ],
+   "log": [
+    "remapped UID (8, 24)",
+    "date-policy(shift) (8, 32)",
+    "date-policy(shift) (8, 33)",
+    "date-policy(shift) (8, 34)",
+    "date-policy(shift) (8, 35)",
+    "blanked (8, 48)",
+    "dummied (8, 80)",
+    "blanked (8, 128)",
+    "removed (8, 129)",
+    "blanked (8, 144)",
+    "blanked (8, 4112)",
+    "blanked (8, 4144)",
+    "blanked (8, 4176)",
+    "blanked (8, 4208)",
+    "blanked (16, 48)",
+    "removed (16, 4097)",
+    "removed (16, 16384)",
+    "removed (24, 4096)",
+    "remapped UID (32, 13)",
+    "remapped UID (32, 14)",
+    "blanked (32, 16)",
+    "remapped UID (32, 82)",
+    "removed (32, 16384)",
+    "blanked PatientSex",
+    "blanked PN (0032,1032)",
+    "removed private tags"
+   ]
+  },
+  "no_pn": {
+   "elements": [
+    [
+     "(0008,0018)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.128179542010811242863611797977479120"
+    ],
+    [
+     "(0008,0020)",
+     "DA",
+     "20260823"
+    ],
+    [
+     "(0008,0021)",
+     "DA",
+     "20260823"
+    ],
+    [
+     "(0008,0022)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0023)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0030)",
+     "TM",
+     ""
+    ],
+    [
+     "(0008,0050)",
+     "SH",
+     "ANON"
+    ],
+    [
+     "(0008,0060)",
+     "CS",
+     "US"
+    ],
+    [
+     "(0008,0080)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,0090)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0008,1030)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,1050)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1070)",
+     "PN",
+     ""
+    ],
+    [
+     "(0010,0010)",
+     "PN",
+     "ANON^4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0020)",
+     "LO",
+     "ANON-4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0030)",
+     "DA",
+     ""
+    ],
+    [
+     "(0010,0040)",
+     "CS",
+     ""
+    ],
+    [
+     "(0010,1010)",
+     "AS",
+     "027Y"
+    ],
+    [
+     "(0012,0062)",
+     "CS",
+     "YES"
+    ],
+    [
+     "(0012,0063)",
+     "LO",
+     "pctk PS3.15 basic subset v0.3.1"
+    ],
+    [
+     "(0020,000D)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.642947635823146043183562940817021364"
+    ],
+    [
+     "(0020,000E)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.651316849735860219429091630828256359"
+    ],
+    [
+     "(0020,0010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0020,0052)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.575766839101945705254432832114912642"
+    ],
+    [
+     "(0032,1032)",
+     "PN",
+     "DR^REQ"
+    ]
+   ],
+   "log": [
+    "remapped UID (8, 24)",
+    "date-policy(shift) (8, 32)",
+    "date-policy(shift) (8, 33)",
+    "date-policy(shift) (8, 34)",
+    "date-policy(shift) (8, 35)",
+    "blanked (8, 48)",
+    "dummied (8, 80)",
+    "blanked (8, 128)",
+    "removed (8, 129)",
+    "blanked (8, 144)",
+    "blanked (8, 4112)",
+    "blanked (8, 4144)",
+    "blanked (8, 4176)",
+    "blanked (8, 4208)",
+    "dummied (16, 16)",
+    "dummied (16, 32)",
+    "blanked (16, 48)",
+    "removed (16, 4097)",
+    "removed (16, 16384)",
+    "removed (24, 4096)",
+    "remapped UID (32, 13)",
+    "remapped UID (32, 14)",
+    "blanked (32, 16)",
+    "remapped UID (32, 82)",
+    "removed (32, 16384)",
+    "blanked PatientSex",
+    "removed private tags"
+   ]
+  },
+  "prefix": {
+   "elements": [
+    [
+     "(0008,0018)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.128179542010811242863611797977479120"
+    ],
+    [
+     "(0008,0020)",
+     "DA",
+     "20260823"
+    ],
+    [
+     "(0008,0021)",
+     "DA",
+     "20260823"
+    ],
+    [
+     "(0008,0022)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0023)",
+     "DA",
+     ""
+    ],
+    [
+     "(0008,0030)",
+     "TM",
+     ""
+    ],
+    [
+     "(0008,0050)",
+     "SH",
+     "ZZ"
+    ],
+    [
+     "(0008,0060)",
+     "CS",
+     "US"
+    ],
+    [
+     "(0008,0080)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,0090)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0008,1030)",
+     "LO",
+     ""
+    ],
+    [
+     "(0008,1050)",
+     "PN",
+     ""
+    ],
+    [
+     "(0008,1070)",
+     "PN",
+     ""
+    ],
+    [
+     "(0010,0010)",
+     "PN",
+     "ZZ^4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0020)",
+     "LO",
+     "ZZ-4A58CEE7F4AC"
+    ],
+    [
+     "(0010,0030)",
+     "DA",
+     ""
+    ],
+    [
+     "(0010,0040)",
+     "CS",
+     ""
+    ],
+    [
+     "(0010,1010)",
+     "AS",
+     "027Y"
+    ],
+    [
+     "(0012,0062)",
+     "CS",
+     "YES"
+    ],
+    [
+     "(0012,0063)",
+     "LO",
+     "pctk PS3.15 basic subset v0.3.1"
+    ],
+    [
+     "(0020,000D)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.642947635823146043183562940817021364"
+    ],
+    [
+     "(0020,000E)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.651316849735860219429091630828256359"
+    ],
+    [
+     "(0020,0010)",
+     "SH",
+     ""
+    ],
+    [
+     "(0020,0052)",
+     "UI",
+     "1.2.826.0.1.3680043.10.9999.575766839101945705254432832114912642"
+    ],
+    [
+     "(0032,1032)",
+     "PN",
+     ""
+    ]
+   ],
+   "log": [
+    "remapped UID (8, 24)",
+    "date-policy(shift) (8, 32)",
+    "date-policy(shift) (8, 33)",
+    "date-policy(shift) (8, 34)",
+    "date-policy(shift) (8, 35)",
+    "blanked (8, 48)",
+    "dummied (8, 80)",
+    "blanked (8, 128)",
+    "removed (8, 129)",
+    "blanked (8, 144)",
+    "blanked (8, 4112)",
+    "blanked (8, 4144)",
+    "blanked (8, 4176)",
+    "blanked (8, 4208)",
+    "dummied (16, 16)",
+    "dummied (16, 32)",
+    "blanked (16, 48)",
+    "removed (16, 4097)",
+    "removed (16, 16384)",
+    "removed (24, 4096)",
+    "remapped UID (32, 13)",
+    "remapped UID (32, 14)",
+    "blanked (32, 16)",
+    "remapped UID (32, 82)",
+    "removed (32, 16384)",
+    "blanked PatientSex",
+    "blanked PN (0032,1032)",
+    "removed private tags"
+   ]
+  }
+ },
+ "ingest": [
+  {
+   "form": {
+    "facility_id": "FAC-A",
+    "gestational_age_weeks": "19.0",
+    "indication": "Anomaly scan",
+    "machine_id": "US-100",
+    "patient_ref": "PT-9F3A529136",
+    "performed_by": "Dr S Rao",
+    "record_id": "",
+    "referring_doctor": "Dr A Mehta",
+    "scan_date": "2026-06-27"
+   },
+   "raw": {
+    "_patient_name": "PRIYA SHARMA",
+    "facility_id": "FAC-A",
+    "gestational_age_weeks": "19",
+    "indication": "Anomaly scan",
+    "machine_id": "US-100",
+    "performed_by": "Dr S Rao",
+    "referring_doctor": "Dr A Mehta",
+    "scan_date": "27-06-2026"
+   }
+  },
+  {
+   "form": {
+    "facility_id": "F9",
+    "gestational_age_weeks": "12.0",
+    "indication": "dating",
+    "machine_id": "M7",
+    "patient_ref": "PT-FB7CA51D5C",
+    "performed_by": "Dr Q",
+    "record_id": "",
+    "referring_doctor": "Dr Z",
+    "scan_date": "2025-03-10"
+   },
+   "raw": {
+    "_patient_name": "Asha Rao",
+    "facility_id": "F9",
+    "gestational_age_weeks": "12",
+    "indication": "dating",
+    "machine_id": "M7",
+    "performed_by": "Dr Q",
+    "referring_doctor": "Dr Z",
+    "scan_date": "2025-03-10"
+   }
+  },
+  {
+   "form": {
+    "facility_id": "DEFAULT-FAC",
+    "gestational_age_weeks": "22.0",
+    "indication": "-",
+    "machine_id": "",
+    "patient_ref": "",
+    "performed_by": "",
+    "record_id": "",
+    "referring_doctor": "",
+    "scan_date": "2024-03-05"
+   },
+   "raw": {
+    "gestational_age_weeks": "22",
+    "indication": "-",
+    "scan_date": "5/Mar/2024"
+   }
+  },
+  {
+   "form": {
+    "facility_id": "DEFAULT-FAC",
+    "gestational_age_weeks": "None",
+    "indication": "",
+    "machine_id": "",
+    "patient_ref": "",
+    "performed_by": "",
+    "record_id": "",
+    "referring_doctor": "",
+    "scan_date": "None"
+   },
+   "raw": {}
+  },
+  {
+   "form": {
+    "facility_id": "DEFAULT-FAC",
+    "gestational_age_weeks": "None",
+    "indication": "",
+    "machine_id": "",
+    "patient_ref": "",
+    "performed_by": "",
+    "record_id": "",
+    "referring_doctor": "",
+    "scan_date": "None"
+   },
+   "raw": {}
+  },
+  {
+   "hash": "PT-9F3A529136",
+   "hash2": "ZZ-2D711642B7"
+  },
+  {
+   "dates": [
+    "2026-06-27",
+    "2026-06-27",
+    "2026-06-27",
+    "2026-06-27",
+    "2026-06-27",
+    "2026-06-27",
+    "2026-06-27",
+    "2026-06-27",
+    "None"
+   ]
+  },
+  {
+   "label": [
+    "US-1",
+    "FAC-A",
+    null
+   ]
+  },
+  {
+   "pdf_digital_bad": ""
+  },
+  {
+   "record_id": "scan_001",
+   "ref": "PT-9F3A529136"
+  },
+  {
+   "record_id": "R1"
+  }
+ ],
+ "pixel": {
+  "backends_type": true,
+  "bad_method": "unknown redaction method: bogus",
+  "fake|blackout|[('also_redact_bands', True)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ],
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted blackout: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted blackout: 'SUNRISE CLINIC' (0.70)",
+    "also redacted margin bands (belt-and-suspenders)"
+   ],
+   "sha": "7561b5a1768b8f7fe2fe881360526af2c51fface9d82ca1b0aeacc81647e7715"
+  },
+  "fake|blackout|[('fallback_bands', False)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted blackout: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted blackout: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "cbe8594896333f03a5d45ae08df71d15d90e840108432399cd80ab8a238f3a67"
+  },
+  "fake|blackout|[('margin_only', False)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     64,
+     60,
+     16,
+     6,
+     "centre",
+     0.8
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted blackout: 'PRIYA SHARMA' (0.90)",
+    "redacted blackout: 'centre' (0.80)",
+    "redacted blackout: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "c601f6cc8972ab2a4354aa942a11cfc9bbda141289c7d23432f1ca9553bd83ac"
+  },
+  "fake|blackout|[('upscale', 1.0)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "redacted blackout: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted blackout: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "cbe8594896333f03a5d45ae08df71d15d90e840108432399cd80ab8a238f3a67"
+  },
+  "fake|blackout|[]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted blackout: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted blackout: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "cbe8594896333f03a5d45ae08df71d15d90e840108432399cd80ab8a238f3a67"
+  },
+  "fake|blur|[('also_redact_bands', True)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ],
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted blur: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted blur: 'SUNRISE CLINIC' (0.70)",
+    "also redacted margin bands (belt-and-suspenders)"
+   ],
+   "sha": "062af8750c00f16a8e27fdc9735186e3bd6ee901f3ef619af71b069b6162f08f"
+  },
+  "fake|blur|[('fallback_bands', False)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted blur: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted blur: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "876b9f6f4222244f867d67d44c770fbb634c45e75f861a5310ff1f893e7100be"
+  },
+  "fake|blur|[('margin_only', False)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     64,
+     60,
+     16,
+     6,
+     "centre",
+     0.8
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted blur: 'PRIYA SHARMA' (0.90)",
+    "redacted blur: 'centre' (0.80)",
+    "redacted blur: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "b0c94c71a279b2b865a79c56e6ab0cc1a5a8429001c42171ce81ab09e2b4850d"
+  },
+  "fake|blur|[('upscale', 1.0)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "redacted blur: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted blur: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "876b9f6f4222244f867d67d44c770fbb634c45e75f861a5310ff1f893e7100be"
+  },
+  "fake|blur|[]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted blur: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted blur: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "876b9f6f4222244f867d67d44c770fbb634c45e75f861a5310ff1f893e7100be"
+  },
+  "fake|pixelate|[('also_redact_bands', True)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ],
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted pixelate: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted pixelate: 'SUNRISE CLINIC' (0.70)",
+    "also redacted margin bands (belt-and-suspenders)"
+   ],
+   "sha": "d3e07724e01d4b512e2ed3cea495f45a09f32fddbf43a2a1c8992ffe3f7ddded"
+  },
+  "fake|pixelate|[('fallback_bands', False)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted pixelate: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted pixelate: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "6fcaee21d7bc0d23e6d2c7446e45df170923a8dfb019ee33ed30c4c4552b6c87"
+  },
+  "fake|pixelate|[('margin_only', False)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     64,
+     60,
+     16,
+     6,
+     "centre",
+     0.8
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted pixelate: 'PRIYA SHARMA' (0.90)",
+    "redacted pixelate: 'centre' (0.80)",
+    "redacted pixelate: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "25f9b245586eef82568fa5ddd8041ecccb2c6d1a55c6956d07b1198ad64de5a8"
+  },
+  "fake|pixelate|[('upscale', 1.0)]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "redacted pixelate: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted pixelate: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "6fcaee21d7bc0d23e6d2c7446e45df170923a8dfb019ee33ed30c4c4552b6c87"
+  },
+  "fake|pixelate|[]": {
+   "boxes": [
+    [
+     8,
+     2,
+     48,
+     6,
+     "PRIYA SHARMA",
+     0.9
+    ],
+    [
+     16,
+     111,
+     48,
+     4,
+     "SUNRISE CLINIC",
+     0.7
+    ]
+   ],
+   "log": [
+    "ocr backend: fake",
+    "ocr upscale: 2x",
+    "redacted pixelate: 'PRIYA SHARMA' (0.90)",
+    "kept (central): 'centre'",
+    "redacted pixelate: 'SUNRISE CLINIC' (0.70)"
+   ],
+   "sha": "6fcaee21d7bc0d23e6d2c7446e45df170923a8dfb019ee33ed30c4c4552b6c87"
+  },
+  "get_backend_unknown": null,
+  "gray_float": {
+   "sha": "2200ba99b43bbd517a1daf39349e73b004fbaf3fa05a94a968bb3dee1438bf5e",
+   "shape": [
+    120,
+    160,
+    3
+   ]
+  },
+  "lines": "PRIYA SHARMA\ncentre\nSUNRISE CLINIC",
+  "lines_empty": "",
+  "none|blackout|[('also_redact_bands', True)]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "7561b5a1768b8f7fe2fe881360526af2c51fface9d82ca1b0aeacc81647e7715"
+  },
+  "none|blackout|[('fallback_bands', False)]": {
+   "boxes": [],
+   "log": [
+    "no OCR backend and fallback disabled; image unchanged"
+   ],
+   "sha": "c6b7e2ef3e9d08aa0de6b2275763c3e535f9fc042e007da107527f986695d453"
+  },
+  "none|blackout|[('margin_only', False)]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "7561b5a1768b8f7fe2fe881360526af2c51fface9d82ca1b0aeacc81647e7715"
+  },
+  "none|blackout|[('upscale', 1.0)]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "7561b5a1768b8f7fe2fe881360526af2c51fface9d82ca1b0aeacc81647e7715"
+  },
+  "none|blackout|[]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "7561b5a1768b8f7fe2fe881360526af2c51fface9d82ca1b0aeacc81647e7715"
+  },
+  "none|blur|[('also_redact_bands', True)]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "b851c30b4bb4018a3811ed55b7c7faa72a77f73e6d515321743f96651db10a89"
+  },
+  "none|blur|[('fallback_bands', False)]": {
+   "boxes": [],
+   "log": [
+    "no OCR backend and fallback disabled; image unchanged"
+   ],
+   "sha": "c6b7e2ef3e9d08aa0de6b2275763c3e535f9fc042e007da107527f986695d453"
+  },
+  "none|blur|[('margin_only', False)]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "b851c30b4bb4018a3811ed55b7c7faa72a77f73e6d515321743f96651db10a89"
+  },
+  "none|blur|[('upscale', 1.0)]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "b851c30b4bb4018a3811ed55b7c7faa72a77f73e6d515321743f96651db10a89"
+  },
+  "none|blur|[]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "b851c30b4bb4018a3811ed55b7c7faa72a77f73e6d515321743f96651db10a89"
+  },
+  "none|pixelate|[('also_redact_bands', True)]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "6321da412c8eb8a5161ae0ee9ddfc7588e7e140e096c2cb8e489585fb0ec2ac1"
+  },
+  "none|pixelate|[('fallback_bands', False)]": {
+   "boxes": [],
+   "log": [
+    "no OCR backend and fallback disabled; image unchanged"
+   ],
+   "sha": "c6b7e2ef3e9d08aa0de6b2275763c3e535f9fc042e007da107527f986695d453"
+  },
+  "none|pixelate|[('margin_only', False)]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "6321da412c8eb8a5161ae0ee9ddfc7588e7e140e096c2cb8e489585fb0ec2ac1"
+  },
+  "none|pixelate|[('upscale', 1.0)]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "6321da412c8eb8a5161ae0ee9ddfc7588e7e140e096c2cb8e489585fb0ec2ac1"
+  },
+  "none|pixelate|[]": {
+   "boxes": [
+    [
+     0,
+     0,
+     160,
+     21,
+     "<top-band>",
+     1.0
+    ],
+    [
+     0,
+     99,
+     160,
+     21,
+     "<bottom-band>",
+     1.0
+    ]
+   ],
+   "log": [
+    "no OCR backend; using margin-band fallback"
+   ],
+   "sha": "6321da412c8eb8a5161ae0ee9ddfc7588e7e140e096c2cb8e489585fb0ec2ac1"
+  },
+  "rgb_float": "426bba8ca53b34e6c10c3e5e18d89adebddae16e29e0ead573d551df1c7f32e7",
+  "rgb_gray": "a4067ae159e33974a5cd0749ed0fc1663ba64670e37cff3ad836efb75f8cf5bd",
+  "rgb_rgba": [
+   120,
+   160,
+   3
+  ]
+ },
+ "srb": {
+  "census": {
+   "Child Sex Ratio": [
+    880
+   ],
+   "District": [
+    "A"
+   ],
+   "counts_available": [
+    false
+   ],
+   "pct_female": [
+    0.46808510638297873
+   ],
+   "srb_f_per_1000_m": [
+    880
+   ]
+  },
+  "child06": {
+   "District": [
+    "A",
+    "B"
+   ],
+   "State": [
+    "S",
+    "S"
+   ],
+   "females": [
+    800,
+    880
+   ],
+   "males": [
+    1000,
+    900
+   ],
+   "pct_female": [
+    0.4444444444444444,
+    0.4943820224719101
+   ],
+   "srb_f_per_1000_m": [
+    800.0,
+    977.7777777777777
+   ],
+   "total": [
+    1800,
+    1780
+   ]
+  },
+  "crs": {
+   "District": [
+    "A",
+    "B"
+   ],
+   "State": [
+    "S",
+    "S"
+   ],
+   "females": [
+    80,
+    190
+   ],
+   "males": [
+    100,
+    200
+   ],
+   "pct_female": [
+    0.4444444444444444,
+    0.48717948717948717
+   ],
+   "srb_f_per_1000_m": [
+    800.0,
+    950.0
+   ],
+   "total": [
+    180,
+    390
+   ]
+  },
+  "crs_map": {
+   "District": [
+    "A",
+    "B"
+   ],
+   "State": [
+    "S",
+    "S"
+   ],
+   "females": [
+    80,
+    190
+   ],
+   "males": [
+    100,
+    200
+   ],
+   "pct_female": [
+    0.4444444444444444,
+    0.48717948717948717
+   ],
+   "srb_f_per_1000_m": [
+    800.0,
+    950.0
+   ],
+   "total": [
+    180,
+    390
+   ]
+  },
+  "err_c6": "could not locate 0-6 child male/female columns (e.g. M_06/F_06); pass column_map={'males': ..., 'females': ...}",
+  "err_census": "could not locate the child-sex-ratio column; pass csr_col",
+  "err_crs": "could not locate male/female birth-count columns; pass column_map={'males': ..., 'females': ...}",
+  "err_nfhs": "could not locate indicator/value columns; pass indicator_col= and value_col=",
+  "err_unknown": "unknown source 'zzz'; choose from ['census', 'child06', 'crs', 'hmis', 'nfhs', 'ratio']",
+  "nfhs": {
+   "District": [
+    "A",
+    "B"
+   ],
+   "NFHS-5": [
+    910,
+    940
+   ],
+   "State": [
+    "S",
+    "S"
+   ],
+   "counts_available": [
+    false,
+    false
+   ],
+   "pct_female": [
+    0.47643979057591623,
+    0.4845360824742268
+   ],
+   "srb_f_per_1000_m": [
+    910,
+    940
+   ]
+  },
+  "ratio": {
+   "District": [
+    "A",
+    "B"
+   ],
+   "SRB": [
+    900,
+    950
+   ],
+   "counts_available": [
+    false,
+    false
+   ],
+   "pct_female": [
+    0.47368421052631576,
+    0.48717948717948717
+   ],
+   "srb_f_per_1000_m": [
+    900,
+    950
+   ]
+  },
+  "ratio_m": {
+   "District": [
+    "A",
+    "B"
+   ],
+   "SRB": [
+    900,
+    950
+   ],
+   "counts_available": [
+    false,
+    false
+   ],
+   "pct_female": [
+    0.1,
+    0.09523809523809523
+   ],
+   "srb_f_per_1000_m": [
+    111.11111111111111,
+    105.26315789473684
+   ]
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "help": "usage: pctk [-h] [--version]\n            {deid-dicom,deid-image,deid-frame,srb,compliance,ingest-formf,biometry,backends,planes-demo,planes-train,planes-eval,planes-predict,health-demo,health-train,health-predict} ...\n\nPrenatal-care toolkit (de-id, SRB, PCPNDT compliance, biometry).\n\npositional arguments:\n  {deid-dicom,deid-image,deid-frame,srb,compliance,ingest-formf,biometry,backends,planes-demo,planes-train,planes-eval,planes-predict,health-demo,health-train,health-predict}\n    deid-dicom          de-identify DICOM header\n    deid-image          redact burned-in text in an image\n    deid-frame          DICOM frame -> redacted image\n    srb                 sex-ratio-at-birth anomaly report\n    compliance          PCPNDT Form-F audit\n    ingest-formf        extract a Form F from a PDF/image into a record\n    biometry            gestational age / fetal weight\n    backends            list available OCR backends\n    planes-demo         synthetic end-to-end train+eval of the plane model\n    planes-train        train plane model on FETAL_PLANES_DB\n    planes-eval         evaluate a saved plane model\n    planes-predict      classify one ultrasound frame\n    health-demo         synthetic end-to-end train+eval of the CTG model\n    health-train        train CTG model on a fetal-health CSV\n    health-predict      classify one CTG record (JSON)\n\noptions:\n  -h, --help            show this help message and exit\n  --version             print version and exit\n",
+ "order": [
+  "deid-dicom",
+  "deid-image",
+  "deid-frame",
+  "srb",
+  "compliance",
+  "ingest-formf",
+  "biometry",
+  "backends",
+  "planes-demo",
+  "planes-train",
+  "planes-eval",
+  "planes-predict",
+  "health-demo",
+  "health-train",
+  "health-predict"
+ ],
+ "sub": {
+  "backends": {
+   "func": "cmd_backends",
+   "help": "usage: pctk backends [-h]\n\noptions:\n  -h, --help  show this help message and exit\n"
+  },
+  "biometry": {
+   "func": "cmd_biometry",
+   "help": "usage: pctk biometry [-h] [--bpd BPD] [--hc HC] [--ac AC] [--fl FL]\n\noptions:\n  -h, --help  show this help message and exit\n  --bpd BPD\n  --hc HC\n  --ac AC\n  --fl FL\n"
+  },
+  "compliance": {
+   "func": "cmd_compliance",
+   "help": "usage: pctk compliance [-h] [-v] forms registrations\n\npositional arguments:\n  forms\n  registrations\n\noptions:\n  -h, --help     show this help message and exit\n  -v, --verbose\n"
+  },
+  "deid-dicom": {
+   "func": "cmd_deid_dicom",
+   "help": "usage: pctk deid-dicom [-h] [--date-policy {keep,blank,shift}]\n                       [--keep-private] [--keep-patient-sex] [-v]\n                       infile outfile\n\npositional arguments:\n  infile\n  outfile\n\noptions:\n  -h, --help            show this help message and exit\n  --date-policy {keep,blank,shift}\n  --keep-private\n  --keep-patient-sex\n  -v, --verbose\n"
+  },
+  "deid-frame": {
+   "func": "cmd_deid_frame",
+   "help": "usage: pctk deid-frame [-h] [--frame FRAME]\n                       [--method {blackout,blur,pixelate}]\n                       [--ocr-backend {easyocr,pytesseract}]\n                       infile outfile\n\npositional arguments:\n  infile\n  outfile\n\noptions:\n  -h, --help            show this help message and exit\n  --frame FRAME\n  --method {blackout,blur,pixelate}\n  --ocr-backend {easyocr,pytesseract}\n"
+  },
+  "deid-image": {
+   "func": "cmd_deid_image",
+   "help": "usage: pctk deid-image [-h] [--method {blackout,blur,pixelate}]\n                       [--whole-image] [--ocr-backend {easyocr,pytesseract}]\n                       [--also-redact-bands]\n                       infile outfile\n\npositional arguments:\n  infile\n  outfile\n\noptions:\n  -h, --help            show this help message and exit\n  --method {blackout,blur,pixelate}\n  --whole-image         redact detected text anywhere, not only margins\n  --ocr-backend {easyocr,pytesseract}\n  --also-redact-bands   belt-and-suspenders: also blank margin overlay bands\n"
+  },
+  "health-demo": {
+   "func": "cmd_health_demo",
+   "help": "usage: pctk health-demo [-h] [--data DATA] [--n N] [--out OUT]\n\noptions:\n  -h, --help   show this help message and exit\n  --data DATA  CSV to write synthetic data\n  --n N\n  --out OUT\n"
+  },
+  "health-predict": {
+   "func": "cmd_health_predict",
+   "help": "usage: pctk health-predict [-h] --model MODEL json\n\npositional arguments:\n  json\n\noptions:\n  -h, --help     show this help message and exit\n  --model MODEL\n"
+  },
+  "health-train": {
+   "func": "cmd_health_train",
+   "help": "usage: pctk health-train [-h] [--out OUT] data\n\npositional arguments:\n  data\n\noptions:\n  -h, --help  show this help message and exit\n  --out OUT\n"
+  },
+  "ingest-formf": {
+   "func": "cmd_ingest_formf",
+   "help": "usage: pctk ingest-formf [-h] [--facility-id FACILITY_ID]\n                         [--ocr-backend {easyocr,pytesseract}]\n                         [--append-csv APPEND_CSV]\n                         infile\n\npositional arguments:\n  infile\n\noptions:\n  -h, --help            show this help message and exit\n  --facility-id FACILITY_ID\n  --ocr-backend {easyocr,pytesseract}\n  --append-csv APPEND_CSV\n                        append the extracted record to this forms CSV\n"
+  },
+  "planes-demo": {
+   "func": "cmd_planes_demo",
+   "help": "usage: pctk planes-demo [-h] [--data DATA] [--n-per-class N_PER_CLASS]\n                        [--out OUT]\n\noptions:\n  -h, --help            show this help message and exit\n  --data DATA           dir to write synthetic data (default: temp)\n  --n-per-class N_PER_CLASS\n  --out OUT             save trained model here\n"
+  },
+  "planes-eval": {
+   "func": "cmd_planes_eval",
+   "help": "usage: pctk planes-eval [-h] --model MODEL [--split SPLIT]\n                        [--backend {sklearn,torch}]\n                        data\n\npositional arguments:\n  data\n\noptions:\n  -h, --help            show this help message and exit\n  --model MODEL\n  --split SPLIT\n  --backend {sklearn,torch}\n"
+  },
+  "planes-predict": {
+   "func": "cmd_planes_predict",
+   "help": "usage: pctk planes-predict [-h] --model MODEL [--backend {sklearn,torch}]\n                           image\n\npositional arguments:\n  image\n\noptions:\n  -h, --help            show this help message and exit\n  --model MODEL\n  --backend {sklearn,torch}\n"
+  },
+  "planes-train": {
+   "func": "cmd_planes_train",
+   "help": "usage: pctk planes-train [-h] [--out OUT] [--backend {sklearn,torch}]\n                         [--epochs EPOCHS]\n                         data\n\npositional arguments:\n  data                  dataset root (Images/ + *_data.csv)\n\noptions:\n  -h, --help            show this help message and exit\n  --out OUT\n  --backend {sklearn,torch}\n  --epochs EPOCHS       torch backend only\n"
+  },
+  "srb": {
+   "func": "cmd_srb",
+   "help": "usage: pctk srb [-h] [--sex-col SEX_COL] [--count-col COUNT_COL]\n                [--source {crs,hmis,ratio,census,nfhs,child06}]\n                [--males-col MALES_COL] [--females-col FEMALES_COL]\n                [--group GROUP [GROUP ...]] [--min-births MIN_BIRTHS]\n                [--alpha ALPHA] [--top TOP] [--out OUT]\n                infile\n\npositional arguments:\n  infile\n\noptions:\n  -h, --help            show this help message and exit\n  --sex-col SEX_COL\n  --count-col COUNT_COL\n  --source {crs,hmis,ratio,census,nfhs,child06}\n                        map a real public dataset via its adapter\n  --males-col MALES_COL\n                        aggregated input: male-count column\n  --females-col FEMALES_COL\n                        aggregated input: female-count column\n  --group GROUP [GROUP ...]\n  --min-births MIN_BIRTHS\n  --alpha ALPHA\n  --top TOP\n  --out OUT\n"
+  }
+ }
+}

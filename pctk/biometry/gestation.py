@@ -7,7 +7,6 @@ report. Measurements are in millimetres unless noted; gestational age in weeks.
 
 from __future__ import annotations
 
-import math
 from typing import Dict, Optional
 
 

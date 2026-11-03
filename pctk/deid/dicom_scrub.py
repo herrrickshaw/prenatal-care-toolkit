@@ -152,66 +152,85 @@ def _apply_date(ds: Dataset, tag: Tuple[int, int], opts: DeidOptions) -> None:
         ds[tag].value = ""
 
 
+PATIENT_NAME_TAG = (0x0010, 0x0010)
+PATIENT_ID_TAG = (0x0010, 0x0020)
+PATIENT_SEX_TAG = (0x0010, 0x0040)
+
+
+def _apply_dummy(ds: "Dataset", tag: Tuple[int, int], opts: DeidOptions) -> None:
+    """Replace a value with a stable pseudonym derived from the patient ID."""
+    if tag == PATIENT_NAME_TAG:
+        pid = str(getattr(ds, "PatientID", "")) or "anon"
+        ds[tag].value = f"{opts.dummy_id_prefix}^{_stable_hash(pid)}"
+    elif tag == PATIENT_ID_TAG:
+        pid = str(ds[tag].value or "anon")
+        ds[tag].value = f"{opts.dummy_id_prefix}-{_stable_hash(pid)}"
+    else:
+        ds[tag].value = opts.dummy_id_prefix
+
+
+def _apply_action(ds: "Dataset", tag: Tuple[int, int], action: str,
+                  opts: DeidOptions) -> None:
+    """Apply one PHI action-table entry to ``ds`` and record it in the audit log."""
+    if action == REMOVE:
+        del ds[tag]
+        opts.log(f"removed {tag}")
+    elif action == BLANK:
+        ds[tag].value = ""
+        opts.log(f"blanked {tag}")
+    elif action == DUMMY:
+        _apply_dummy(ds, tag, opts)
+        opts.log(f"dummied {tag}")
+    elif action == HASH_UID:
+        ds[tag].value = _remap_uid(str(ds[tag].value))
+        opts.log(f"remapped UID {tag}")
+    elif action == DATE:
+        _apply_date(ds, tag, opts)
+        opts.log(f"date-policy({opts.date_policy}) {tag}")
+
+
+def _blank_person_names(ds: "Dataset", opts: DeidOptions) -> None:
+    """Catch-all: blank every Person Name (VR ``PN``) not handled by the table.
+
+    Tags in ``PHI_ACTIONS`` already received their intended treatment (e.g.
+    PatientName keeps its pseudonymous dummy), so they are skipped here.
+    """
+    for elem in ds:
+        tag = (elem.tag.group, elem.tag.element)
+        if tag in PHI_ACTIONS:
+            continue
+        try:
+            if elem.VR == "PN" and elem.value not in ("", None):
+                elem.value = ""
+                opts.log(f"blanked PN {elem.tag}")
+        except (AttributeError, TypeError, ValueError) as exc:
+            opts.log(f"skipped unreadable element {elem.tag}: {exc}")
+
+
 def deidentify_dataset(ds: "Dataset", opts: Optional[DeidOptions] = None) -> "Dataset":
     """De-identify a pydicom :class:`Dataset` in place and return it."""
     opts = opts or DeidOptions()
 
     # 1) Curated action table.
     for tag, action in PHI_ACTIONS.items():
-        if tag not in ds:
-            continue
-        if action == REMOVE:
-            del ds[tag]
-            opts.log(f"removed {tag}")
-        elif action == BLANK:
-            ds[tag].value = ""
-            opts.log(f"blanked {tag}")
-        elif action == DUMMY:
-            if tag == (0x0010, 0x0010):  # Patient Name
-                pid = str(getattr(ds, "PatientID", "")) or "anon"
-                ds[tag].value = f"{opts.dummy_id_prefix}^{_stable_hash(pid)}"
-            elif tag == (0x0010, 0x0020):  # Patient ID
-                pid = str(ds[tag].value or "anon")
-                ds[tag].value = f"{opts.dummy_id_prefix}-{_stable_hash(pid)}"
-            else:
-                ds[tag].value = opts.dummy_id_prefix
-            opts.log(f"dummied {tag}")
-        elif action == HASH_UID:
-            ds[tag].value = _remap_uid(str(ds[tag].value))
-            opts.log(f"remapped UID {tag}")
-        elif action == DATE:
-            _apply_date(ds, tag, opts)
-            opts.log(f"date-policy({opts.date_policy}) {tag}")
+        if tag in ds:
+            _apply_action(ds, tag, action, opts)
 
-    # 2) Optionally retain a pseudonymous clinic id before institution is gone.
-    #    (Done above already blanked InstitutionName; store hash in StationName
-    #     slot only if requested and value existed.)
-    # 3) Patient sex (mother) handling.
-    if not opts.keep_patient_sex and (0x0010, 0x0040) in ds:
-        ds[(0x0010, 0x0040)].value = ""
+    # 2) Patient sex (mother) handling.
+    if not opts.keep_patient_sex and PATIENT_SEX_TAG in ds:
+        ds[PATIENT_SEX_TAG].value = ""
         opts.log("blanked PatientSex")
 
-    # 4) Catch-all: blank every Person Name VR we did not explicitly handle.
-    #    (Tags in PHI_ACTIONS were already given their intended treatment -
-    #    e.g. PatientName keeps its pseudonymous dummy - so skip them here.)
+    # 3) Person-name catch-all.
     if opts.blank_all_person_names:
-        for elem in ds:
-            try:
-                tag = (elem.tag.group, elem.tag.element)
-                if tag in PHI_ACTIONS:
-                    continue
-                if elem.VR == "PN" and elem.value not in ("", None):
-                    elem.value = ""
-                    opts.log(f"blanked PN {elem.tag}")
-            except Exception:
-                continue
+        _blank_person_names(ds, opts)
 
-    # 5) Private tags.
+    # 4) Private tags.
     if opts.remove_private_tags:
         ds.remove_private_tags()
         opts.log("removed private tags")
 
-    # 6) Mark the dataset as de-identified per standard.
+    # 5) Mark the dataset as de-identified per standard.
     ds.PatientIdentityRemoved = "YES"
     ds.DeidentificationMethod = "pctk PS3.15 basic subset v" + _toolkit_version()
 
@@ -239,6 +258,6 @@ def deidentify_file(
 def _toolkit_version() -> str:
     try:
         from .. import __version__
-        return __version__
-    except Exception:
+    except ImportError:
         return "0"
+    return __version__

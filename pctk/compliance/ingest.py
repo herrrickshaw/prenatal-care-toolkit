@@ -21,6 +21,7 @@ Optional dependencies degrade gracefully:
 from __future__ import annotations
 
 import hashlib
+import logging
 import os
 import re
 from datetime import datetime
@@ -31,6 +32,17 @@ import numpy as np
 from .formf import FormF
 from ..deid import ocr_backends
 
+logger = logging.getLogger(__name__)
+
+# Date layouts seen on Form F, tried in order.
+FORM_DATE_FORMATS = ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%d-%b-%Y", "%d/%b/%Y",
+                     "%d-%B-%Y", "%Y%m%d")
+# Minimum stripped characters for a PDF text layer to count as "digital".
+MIN_DIGITAL_CHARS = 40
+# Raster resolution for scanned-PDF OCR.
+PDF_RENDER_DPI = 200
+# Length of the hex digest kept in the pseudonymous patient reference.
+PATIENT_REF_HEX_CHARS = 10
 
 # Label aliases per field -> regex value capture (rest of line).
 _FIELD_PATTERNS: Dict[str, List[str]] = {
@@ -79,14 +91,15 @@ _DATE_PATTERNS = [
 
 
 def _hash_ref(name: str, prefix: str = "PT") -> str:
-    h = hashlib.sha256(name.strip().lower().encode("utf-8")).hexdigest()[:10].upper()
+    """One-way pseudonymous reference for a patient name (name is not recoverable)."""
+    digest = hashlib.sha256(name.strip().lower().encode("utf-8")).hexdigest()
+    h = digest[:PATIENT_REF_HEX_CHARS].upper()
     return f"{prefix}-{h}"
 
 
 def _parse_date(s: str):
     s = s.strip()
-    for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%d-%b-%Y", "%d/%b/%Y",
-                "%d-%B-%Y", "%Y%m%d"):
+    for fmt in FORM_DATE_FORMATS:
         try:
             return datetime.strptime(s, fmt).date()
         except ValueError:
@@ -100,19 +113,22 @@ def _parse_date(s: str):
 def _pdf_digital_text(path: str) -> str:
     try:
         import pypdf
-    except Exception:
+    except ImportError:
+        logger.debug("pypdf not installed; skipping digital-PDF text extraction")
         return ""
     try:
         reader = pypdf.PdfReader(path)
         return "\n".join((pg.extract_text() or "") for pg in reader.pages)
-    except Exception:
+    except Exception as exc:  # pypdf raises many types on malformed input
+        logger.warning("could not read text layer of %s: %s", path, exc)
         return ""
 
 
-def _pdf_render_pages(path: str, dpi: int = 200) -> List[np.ndarray]:
+def _pdf_render_pages(path: str, dpi: int = PDF_RENDER_DPI) -> List[np.ndarray]:
     try:
         import fitz  # PyMuPDF
-    except Exception:
+    except ImportError:
+        logger.debug("PyMuPDF not installed; cannot rasterise scanned PDFs")
         return []
     pages = []
     doc = fitz.open(path)
@@ -130,7 +146,7 @@ def _pdf_render_pages(path: str, dpi: int = 200) -> List[np.ndarray]:
 
 
 def extract_text(path: str, ocr_backend: Optional[str] = None,
-                 min_digital_chars: int = 40) -> str:
+                 min_digital_chars: int = MIN_DIGITAL_CHARS) -> str:
     """Return the text of a Form F, choosing the right strategy by file type."""
     ext = os.path.splitext(path)[1].lower()
     if ext == ".pdf":

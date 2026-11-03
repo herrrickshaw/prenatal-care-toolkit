@@ -14,19 +14,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from datetime import date, datetime
 from typing import List, Optional
-
-
-def _parse_date(s: Optional[str]):
-    if not s:
-        return None
-    for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%Y%m%d", "%d/%m/%Y"):
-        try:
-            return datetime.strptime(str(s).strip(), fmt).date()
-        except ValueError:
-            continue
-    return None
 
 
 # --------------------------------------------------------------------------- #
@@ -78,46 +66,35 @@ def cmd_deid_frame(args) -> int:
 # --------------------------------------------------------------------------- #
 # Problem 2
 # --------------------------------------------------------------------------- #
-def cmd_srb(args) -> int:
-    from .srb import (load_births, compute_srb, flag_anomalies, SRBConfig,
-                      from_aggregated_counts, adapt, SOURCE_NOTES)
+def _build_srb_table(args, cfg, df):
+    """Pick the ingestion path: named adapter, aggregated counts, or per-birth."""
+    from .srb import SOURCE_NOTES, adapt, compute_srb, from_aggregated_counts
 
-    cfg = SRBConfig(
-        sex_col=args.sex_col,
-        count_col=args.count_col,
-        group_cols=args.group or ["district"],
-        min_births=args.min_births,
-        alpha=args.alpha,
-    )
-    df = load_births(args.infile)
-
-    # Choose ingestion path: named public-source adapter, aggregated wide
-    # counts, or the default per-birth (long) layout.
     if args.source:
         print(f"[srb] adapter '{args.source}': {SOURCE_NOTES.get(args.source, '')}")
         kwargs = {}
         if args.group:
             kwargs["group_cols"] = args.group
-        table = adapt(args.source, df, **kwargs)
-    elif args.males_col and args.females_col:
-        table = from_aggregated_counts(
+        return adapt(args.source, df, **kwargs)
+    if args.males_col and args.females_col:
+        return from_aggregated_counts(
             df, cfg.group_cols, args.males_col, args.females_col)
-    else:
-        table = compute_srb(df, cfg)
+    return compute_srb(df, cfg)
 
-    # Ratio-only sources carry no denominators -> no significance test.
-    if "counts_available" in table.columns and not table["counts_available"].any():
-        out = table.sort_values("srb_f_per_1000_m").reset_index(drop=True)
-        print(f"[srb] ratio-only source: {len(out)} units (no counts -> no "
-              f"significance test). Lowest female ratios first:")
-        cols = [c for c in out.columns if c != "counts_available"]
-        with_pd_display(out[cols], args.top)
-        if args.out:
-            out.to_csv(args.out, index=False)
-            print(f"[srb] full table -> {args.out}")
-        return 0
 
-    flagged = flag_anomalies(table, cfg)
+def _report_ratio_only(table, args) -> None:
+    """Ratio-only sources carry no denominators -> no significance test."""
+    out = table.sort_values("srb_f_per_1000_m").reset_index(drop=True)
+    print(f"[srb] ratio-only source: {len(out)} units (no counts -> no "
+          f"significance test). Lowest female ratios first:")
+    cols = [c for c in out.columns if c != "counts_available"]
+    with_pd_display(out[cols], args.top)
+    if args.out:
+        out.to_csv(args.out, index=False)
+        print(f"[srb] full table -> {args.out}")
+
+
+def _report_flagged(flagged, cfg, args) -> None:
     metric_cols = ["females", "males", "total", "pct_female",
                    "srb_f_per_1000_m", "expected_females", "female_deficit",
                    "p_value", "significant"]
@@ -132,6 +109,24 @@ def cmd_srb(args) -> int:
     if args.out:
         flagged.to_csv(args.out, index=False)
         print(f"[srb] full table -> {args.out}")
+
+
+def cmd_srb(args) -> int:
+    from .srb import SRBConfig, flag_anomalies, load_births
+
+    cfg = SRBConfig(
+        sex_col=args.sex_col,
+        count_col=args.count_col,
+        group_cols=args.group or ["district"],
+        min_births=args.min_births,
+        alpha=args.alpha,
+    )
+    table = _build_srb_table(args, cfg, load_births(args.infile))
+
+    if "counts_available" in table.columns and not table["counts_available"].any():
+        _report_ratio_only(table, args)
+        return 0
+    _report_flagged(flag_anomalies(table, cfg), cfg, args)
     return 0
 
 
@@ -147,34 +142,11 @@ def with_pd_display(df, top: int) -> None:
 # Problem 3
 # --------------------------------------------------------------------------- #
 def cmd_compliance(args) -> int:
-    import csv
-    from .compliance import FormF, MachineRegistration, audit_records
+    from .compliance import audit_records
+    from .compliance.io import load_forms_csv, load_registrations_csv
 
-    forms: List[FormF] = []
-    with open(args.forms, newline="") as fh:
-        for i, row in enumerate(csv.DictReader(fh)):
-            ga = row.get("gestational_age_weeks") or ""
-            forms.append(FormF(
-                patient_ref=row.get("patient_ref", ""),
-                facility_id=row.get("facility_id", ""),
-                machine_id=row.get("machine_id", ""),
-                scan_date=_parse_date(row.get("scan_date")),
-                referring_doctor=row.get("referring_doctor", ""),
-                indication=row.get("indication", ""),
-                gestational_age_weeks=float(ga) if ga else None,
-                performed_by=row.get("performed_by", ""),
-                record_id=row.get("record_id", f"row{i}"),
-            ))
-
-    regs: List[MachineRegistration] = []
-    with open(args.registrations, newline="") as fh:
-        for row in csv.DictReader(fh):
-            regs.append(MachineRegistration(
-                machine_id=row.get("machine_id", ""),
-                facility_id=row.get("facility_id", ""),
-                registered_from=_parse_date(row.get("registered_from")) or date.min,
-                registered_to=_parse_date(row.get("registered_to")),
-            ))
+    forms = load_forms_csv(args.forms)
+    regs = load_registrations_csv(args.registrations)
 
     result = audit_records(forms, regs)
     c = result["counts"]
@@ -197,6 +169,7 @@ def cmd_compliance(args) -> int:
 # --------------------------------------------------------------------------- #
 def cmd_ingest_formf(args) -> int:
     from .compliance import ingest_form_f, validate_form_f
+    from .compliance.io import append_form_csv
 
     form, raw = ingest_form_f(
         args.infile,
@@ -216,24 +189,9 @@ def cmd_ingest_formf(args) -> int:
     for fn in findings:
         print(f"   [{fn.severity}] {fn.rule}: {fn.detail}")
     if args.append_csv:
-        _append_form_csv(args.append_csv, form)
+        append_form_csv(args.append_csv, form)
         print(f"   -> appended to {args.append_csv}")
     return 0
-
-
-def _append_form_csv(path: str, form) -> None:
-    import csv
-    import os
-    header = ["record_id", "facility_id", "machine_id", "scan_date",
-              "referring_doctor", "indication", "gestational_age_weeks",
-              "performed_by", "patient_ref"]
-    exists = os.path.exists(path)
-    with open(path, "a", newline="") as fh:
-        w = csv.writer(fh)
-        if not exists:
-            w.writerow(header)
-        w.writerow([getattr(form, h) if getattr(form, h) is not None else ""
-                    for h in header])
 
 
 def cmd_biometry(args) -> int:
@@ -396,15 +354,11 @@ def cmd_backends(args) -> int:
 
 
 # --------------------------------------------------------------------------- #
-def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="pctk",
-                                description="Prenatal-care toolkit (de-id, SRB, "
-                                            "PCPNDT compliance, biometry).")
-    p.add_argument("--version", action="store_true", help="print version and exit")
-    sub = p.add_subparsers(dest="command")
-
+def _add_deid_commands(sub) -> None:
+    """Register the de-identification subcommands."""
     d1 = sub.add_parser("deid-dicom", help="de-identify DICOM header")
-    d1.add_argument("infile"); d1.add_argument("outfile")
+    d1.add_argument("infile")
+    d1.add_argument("outfile")
     d1.add_argument("--date-policy", choices=["keep", "blank", "shift"],
                     default="shift")
     d1.add_argument("--keep-private", action="store_true")
@@ -413,7 +367,8 @@ def build_parser() -> argparse.ArgumentParser:
     d1.set_defaults(func=cmd_deid_dicom)
 
     d2 = sub.add_parser("deid-image", help="redact burned-in text in an image")
-    d2.add_argument("infile"); d2.add_argument("outfile")
+    d2.add_argument("infile")
+    d2.add_argument("outfile")
     d2.add_argument("--method", choices=["blackout", "blur", "pixelate"],
                     default="blackout")
     d2.add_argument("--whole-image", action="store_true",
@@ -425,7 +380,8 @@ def build_parser() -> argparse.ArgumentParser:
     d2.set_defaults(func=cmd_deid_image)
 
     d3 = sub.add_parser("deid-frame", help="DICOM frame -> redacted image")
-    d3.add_argument("infile"); d3.add_argument("outfile")
+    d3.add_argument("infile")
+    d3.add_argument("outfile")
     d3.add_argument("--frame", type=int, default=0)
     d3.add_argument("--method", choices=["blackout", "blur", "pixelate"],
                     default="blackout")
@@ -433,6 +389,9 @@ def build_parser() -> argparse.ArgumentParser:
                     default=None)
     d3.set_defaults(func=cmd_deid_frame)
 
+
+def _add_srb_command(sub) -> None:
+    """Register the sex-ratio-at-birth report subcommand."""
     s = sub.add_parser("srb", help="sex-ratio-at-birth anomaly report")
     s.add_argument("infile")
     s.add_argument("--sex-col", default="sex")
@@ -452,8 +411,12 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--out", default=None)
     s.set_defaults(func=cmd_srb)
 
+
+def _add_compliance_commands(sub) -> None:
+    """Register the Form-F audit and ingest subcommands."""
     c = sub.add_parser("compliance", help="PCPNDT Form-F audit")
-    c.add_argument("forms"); c.add_argument("registrations")
+    c.add_argument("forms")
+    c.add_argument("registrations")
     c.add_argument("-v", "--verbose", action="store_true")
     c.set_defaults(func=cmd_compliance)
 
@@ -467,6 +430,9 @@ def build_parser() -> argparse.ArgumentParser:
                     help="append the extracted record to this forms CSV")
     ig.set_defaults(func=cmd_ingest_formf)
 
+
+def _add_utility_commands(sub) -> None:
+    """Register biometry and OCR-backend listing subcommands."""
     b = sub.add_parser("biometry", help="gestational age / fetal weight")
     b.add_argument("--bpd", type=float, default=None)
     b.add_argument("--hc", type=float, default=None)
@@ -477,6 +443,9 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("backends", help="list available OCR backends").set_defaults(
         func=cmd_backends)
 
+
+def _add_plane_commands(sub) -> None:
+    """Register the fetal-plane classifier subcommands."""
     # -- fetal-plane classifier (sex-neutral) -- #
     pd_ = sub.add_parser("planes-demo",
                          help="synthetic end-to-end train+eval of the plane model")
@@ -494,16 +463,21 @@ def build_parser() -> argparse.ArgumentParser:
     pt.set_defaults(func=cmd_planes_train)
 
     pe = sub.add_parser("planes-eval", help="evaluate a saved plane model")
-    pe.add_argument("data"); pe.add_argument("--model", required=True)
+    pe.add_argument("data")
+    pe.add_argument("--model", required=True)
     pe.add_argument("--split", default="test")
     pe.add_argument("--backend", choices=["sklearn", "torch"], default="sklearn")
     pe.set_defaults(func=cmd_planes_eval)
 
     pp = sub.add_parser("planes-predict", help="classify one ultrasound frame")
-    pp.add_argument("image"); pp.add_argument("--model", required=True)
+    pp.add_argument("image")
+    pp.add_argument("--model", required=True)
     pp.add_argument("--backend", choices=["sklearn", "torch"], default="sklearn")
     pp.set_defaults(func=cmd_planes_predict)
 
+
+def _add_health_commands(sub) -> None:
+    """Register the fetal-health (CTG) classifier subcommands."""
     # -- fetal-health (CTG) classifier (sex-neutral) -- #
     hd = sub.add_parser("health-demo",
                         help="synthetic end-to-end train+eval of the CTG model")
@@ -513,13 +487,26 @@ def build_parser() -> argparse.ArgumentParser:
     hd.set_defaults(func=cmd_health_demo)
 
     ht = sub.add_parser("health-train", help="train CTG model on a fetal-health CSV")
-    ht.add_argument("data"); ht.add_argument("--out", default="health_model.joblib")
+    ht.add_argument("data")
+    ht.add_argument("--out", default="health_model.joblib")
     ht.set_defaults(func=cmd_health_train)
 
     hp = sub.add_parser("health-predict", help="classify one CTG record (JSON)")
-    hp.add_argument("json"); hp.add_argument("--model", required=True)
+    hp.add_argument("json")
+    hp.add_argument("--model", required=True)
     hp.set_defaults(func=cmd_health_predict)
 
+
+def build_parser() -> argparse.ArgumentParser:
+    """Assemble the pctk argument parser from per-area subcommand groups."""
+    p = argparse.ArgumentParser(prog="pctk",
+                                description="Prenatal-care toolkit (de-id, SRB, "
+                                            "PCPNDT compliance, biometry).")
+    p.add_argument("--version", action="store_true", help="print version and exit")
+    sub = p.add_subparsers(dest="command")
+    for add in (_add_deid_commands, _add_srb_command, _add_compliance_commands,
+                _add_utility_commands, _add_plane_commands, _add_health_commands):
+        add(sub)
     return p
 
 

@@ -7,3 +7,5 @@ dist/
 
 # Generated sample data / outputs (regenerate with examples/make_sample_data.py)
 data/
+.venv/
+.ruff_cache/

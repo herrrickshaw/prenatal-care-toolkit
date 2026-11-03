@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 
 import pandas as pd
 

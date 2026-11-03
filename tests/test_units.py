@@ -98,7 +98,7 @@ def test_get_backend_unknown_name_is_none():
     assert ocr_backends.get_backend("nonexistent") is None
 
 
-def test_build_parser_matches_golden():
+def test_build_parser_matches_golden(monkeypatch):
     """Pin the CLI surface (help text, defaults, handlers, subcommand order)."""
     import argparse
     import json
@@ -106,8 +106,15 @@ def test_build_parser_matches_golden():
 
     from pctk.cli import build_parser
 
+    monkeypatch.setenv("COLUMNS", "120")  # argparse wraps by terminal width
+
+    def norm_help(text):
+        # argparse wraps usage by terminal width and renamed "optional arguments"
+        # to "options" in 3.10; compare content, not layout.
+        return " ".join(text.replace("optional arguments:", "options:").split())
+
     def dump(p):
-        out = {"help": p.format_help()}
+        out = {"help": norm_help(p.format_help())}
         for a in p._actions:
             if isinstance(a, argparse._SubParsersAction):
                 out["sub"] = {
@@ -120,5 +127,13 @@ def test_build_parser_matches_golden():
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "golden", "parser.json")
     with open(path) as fh:
-        assert json.dumps(dump(build_parser()), sort_keys=True, indent=1) == \
-            json.dumps(json.load(fh), sort_keys=True, indent=1)
+        golden = json.load(fh)
+
+    def norm_golden(d):
+        d["help"] = norm_help(d["help"])
+        for sub in d.get("sub", {}).values():
+            norm_golden(sub)
+        return d
+
+    assert json.dumps(dump(build_parser()), sort_keys=True, indent=1) == \
+        json.dumps(norm_golden(golden), sort_keys=True, indent=1)

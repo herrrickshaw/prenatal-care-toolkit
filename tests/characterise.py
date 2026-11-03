@@ -16,6 +16,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import sys
 import tempfile
 from datetime import date
@@ -74,7 +75,7 @@ def pixel_cases():
                     res, boxes = pt.redact_array(arr, opts)
                     out[f"{label}|{method}|{sorted(kw.items())}"] = {
                         "sha": _digest(res), "boxes": [list(b) for b in boxes],
-                        "log": opts.audit_log}
+                        "log": [_tag_text(x) for x in opts.audit_log]}
         # grayscale / float input normalisation
         ob.get_backend = lambda prefer=None, languages=None: None
         gray = (arr[:, :, 0].astype("float64") / 7.0)
@@ -143,10 +144,22 @@ def _dicom_ds():
     return ds
 
 
+_TAG_RE = re.compile(r"\(([0-9A-Fa-f]{4}), ?([0-9A-Fa-f]{4})\)")
+
+
+def _tag_text(text):
+    """pydicom 2.x prints "(0020, 000d)", 3.x "(0020,000D)": normalise to the 3.x form."""
+    return _TAG_RE.sub(lambda m: "(%s,%s)" % (m.group(1).upper(), m.group(2).upper()), text)
+
+
+def _tag(tag):
+    return _tag_text(str(tag))
+
+
 def _dump(ds):
     rows = []
     for el in ds:
-        rows.append([str(el.tag), el.VR, str(el.value)])
+        rows.append([_tag(el.tag), el.VR, str(el.value)])
     return rows
 
 
@@ -164,13 +177,13 @@ def dicom_cases():
     for name, kw in variants.items():
         opts = DeidOptions(**kw)
         ds = deidentify_dataset(_dicom_ds(), opts)
-        out[name] = {"elements": _dump(ds), "log": opts.audit_log}
+        out[name] = {"elements": _dump(ds), "log": [_tag_text(x) for x in opts.audit_log]}
     ds = _dicom_ds()
     del ds.PatientID
     del ds.PatientName
     opts = DeidOptions()
     out["no_ids"] = {"elements": _dump(deidentify_dataset(ds, opts)),
-                     "log": opts.audit_log}
+                     "log": [_tag_text(x) for x in opts.audit_log]}
     return out
 
 
@@ -277,7 +290,7 @@ def cli_cases():
             return os.path.join(td, name)
 
         def clean(d):
-            return {k: (v.replace(td, "<TMP>") if isinstance(v, str) else v)
+            return {k: (_tag_text(v.replace(td, "<TMP>")) if isinstance(v, str) else v)
                     for k, v in d.items()}
 
         with open(P("forms.csv"), "w", newline="") as fh:
@@ -342,7 +355,10 @@ def cli_cases():
         ds.SOPClassUID = ds.file_meta.MediaStorageSOPClassUID
         ds.AcquisitionDate = "20260301"
         ds.ContentDate = "20260301"
-        ds.save_as(P("in.dcm"), enforce_file_format=True)
+        try:
+            ds.save_as(P("in.dcm"), enforce_file_format=True)   # pydicom >= 3
+        except TypeError:
+            ds.save_as(P("in.dcm"), write_like_original=False)  # pydicom 2.x equivalent
         r = _run_cli(["deid-dicom", P("in.dcm"), P("out.dcm"), "-v", "--date-policy", "blank"])
         out["deid_dicom"] = clean(r)
         import pydicom
@@ -351,8 +367,16 @@ def cli_cases():
         import numpy as np
         from PIL import Image
         Image.fromarray(_image()).save(P("in.png"))
-        out["deid_image"] = clean(_run_cli(["deid-image", P("in.png"), P("o.png"),
-                                            "--also-redact-bands", "--method", "pixelate"]))
+        # The baseline was captured with no OCR engine installed; CI runners have
+        # tesseract, so pin "no backend" here to keep the test machine-independent.
+        from pctk.deid import ocr_backends as _ob
+        _orig_get = _ob.get_backend
+        _ob.get_backend = lambda prefer=None, languages=None: None
+        try:
+            out["deid_image"] = clean(_run_cli(["deid-image", P("in.png"), P("o.png"),
+                                                "--also-redact-bands", "--method", "pixelate"]))
+        finally:
+            _ob.get_backend = _orig_get
         out["deid_image_sha"] = _digest(np.asarray(Image.open(P("o.png"))))
         out["backends"] = _run_cli(["backends"])["code"]
     return out

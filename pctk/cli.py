@@ -354,13 +354,8 @@ def cmd_backends(args) -> int:
 
 
 # --------------------------------------------------------------------------- #
-def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="pctk",
-                                description="Prenatal-care toolkit (de-id, SRB, "
-                                            "PCPNDT compliance, biometry).")
-    p.add_argument("--version", action="store_true", help="print version and exit")
-    sub = p.add_subparsers(dest="command")
-
+def _add_deid_commands(sub) -> None:
+    """Register the de-identification subcommands."""
     d1 = sub.add_parser("deid-dicom", help="de-identify DICOM header")
     d1.add_argument("infile")
     d1.add_argument("outfile")
@@ -394,6 +389,9 @@ def build_parser() -> argparse.ArgumentParser:
                     default=None)
     d3.set_defaults(func=cmd_deid_frame)
 
+
+def _add_srb_command(sub) -> None:
+    """Register the sex-ratio-at-birth report subcommand."""
     s = sub.add_parser("srb", help="sex-ratio-at-birth anomaly report")
     s.add_argument("infile")
     s.add_argument("--sex-col", default="sex")
@@ -413,6 +411,9 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--out", default=None)
     s.set_defaults(func=cmd_srb)
 
+
+def _add_compliance_commands(sub) -> None:
+    """Register the Form-F audit and ingest subcommands."""
     c = sub.add_parser("compliance", help="PCPNDT Form-F audit")
     c.add_argument("forms")
     c.add_argument("registrations")
@@ -429,6 +430,9 @@ def build_parser() -> argparse.ArgumentParser:
                     help="append the extracted record to this forms CSV")
     ig.set_defaults(func=cmd_ingest_formf)
 
+
+def _add_utility_commands(sub) -> None:
+    """Register biometry and OCR-backend listing subcommands."""
     b = sub.add_parser("biometry", help="gestational age / fetal weight")
     b.add_argument("--bpd", type=float, default=None)
     b.add_argument("--hc", type=float, default=None)
@@ -439,6 +443,9 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("backends", help="list available OCR backends").set_defaults(
         func=cmd_backends)
 
+
+def _add_plane_commands(sub) -> None:
+    """Register the fetal-plane classifier subcommands."""
     # -- fetal-plane classifier (sex-neutral) -- #
     pd_ = sub.add_parser("planes-demo",
                          help="synthetic end-to-end train+eval of the plane model")
@@ -468,6 +475,9 @@ def build_parser() -> argparse.ArgumentParser:
     pp.add_argument("--backend", choices=["sklearn", "torch"], default="sklearn")
     pp.set_defaults(func=cmd_planes_predict)
 
+
+def _add_health_commands(sub) -> None:
+    """Register the fetal-health (CTG) classifier subcommands."""
     # -- fetal-health (CTG) classifier (sex-neutral) -- #
     hd = sub.add_parser("health-demo",
                         help="synthetic end-to-end train+eval of the CTG model")
@@ -486,6 +496,17 @@ def build_parser() -> argparse.ArgumentParser:
     hp.add_argument("--model", required=True)
     hp.set_defaults(func=cmd_health_predict)
 
+
+def build_parser() -> argparse.ArgumentParser:
+    """Assemble the pctk argument parser from per-area subcommand groups."""
+    p = argparse.ArgumentParser(prog="pctk",
+                                description="Prenatal-care toolkit (de-id, SRB, "
+                                            "PCPNDT compliance, biometry).")
+    p.add_argument("--version", action="store_true", help="print version and exit")
+    sub = p.add_subparsers(dest="command")
+    for add in (_add_deid_commands, _add_srb_command, _add_compliance_commands,
+                _add_utility_commands, _add_plane_commands, _add_health_commands):
+        add(sub)
     return p
 
 

@@ -96,3 +96,29 @@ def test_redact_region_clips_and_rejects_unknown():
 
 def test_get_backend_unknown_name_is_none():
     assert ocr_backends.get_backend("nonexistent") is None
+
+
+def test_build_parser_matches_golden():
+    """Pin the CLI surface (help text, defaults, handlers, subcommand order)."""
+    import argparse
+    import json
+    import os
+
+    from pctk.cli import build_parser
+
+    def dump(p):
+        out = {"help": p.format_help()}
+        for a in p._actions:
+            if isinstance(a, argparse._SubParsersAction):
+                out["sub"] = {
+                    n: dump(sp) | {"func": sp.get_default("func").__name__
+                                   if sp.get_default("func") else None}
+                    for n, sp in a.choices.items()}
+                out["order"] = list(a.choices)
+        return out
+
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "golden", "parser.json")
+    with open(path) as fh:
+        assert json.dumps(dump(build_parser()), sort_keys=True, indent=1) == \
+            json.dumps(json.load(fh), sort_keys=True, indent=1)

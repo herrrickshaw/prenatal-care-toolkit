@@ -21,7 +21,10 @@ Optional dependencies degrade gracefully:
 from __future__ import annotations
 
 import hashlib
+import hmac
 import os
+import secrets
+import warnings
 import re
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
@@ -78,9 +81,35 @@ _DATE_PATTERNS = [
 ]
 
 
+_PSEUDONYM_KEY_ENV = "PCTK_PSEUDONYM_KEY"
+_process_key: Optional[bytes] = None
+
+
+def _pseudonym_key() -> bytes:
+    """Secret for the name pseudonym.
+
+    Set ``PCTK_PSEUDONYM_KEY`` to keep ``patient_ref`` stable across runs (and
+    keep that value secret: anyone holding it can test candidate names). If it
+    is unset, a random per-process key is used, so refs link records within one
+    run only and cannot be recomputed from a list of names.
+    """
+    global _process_key
+    env = os.environ.get(_PSEUDONYM_KEY_ENV)
+    if env:
+        return env.encode("utf-8")
+    if _process_key is None:
+        warnings.warn(
+            f"{_PSEUDONYM_KEY_ENV} not set: patient_ref pseudonyms use a random "
+            "per-process key and will differ between runs.", stacklevel=3)
+        _process_key = secrets.token_bytes(32)
+    return _process_key
+
+
 def _hash_ref(name: str, prefix: str = "PT") -> str:
-    h = hashlib.sha256(name.strip().lower().encode("utf-8")).hexdigest()[:10].upper()
-    return f"{prefix}-{h}"
+    """Keyed (HMAC-SHA256) pseudonym of a name. An unkeyed hash of a name is
+    reversible with a dictionary of common names."""
+    mac = hmac.new(_pseudonym_key(), name.strip().lower().encode("utf-8"), hashlib.sha256)
+    return f"{prefix}-{mac.hexdigest()[:16].upper()}"
 
 
 def _parse_date(s: str):
@@ -179,11 +208,12 @@ def parse_form_f_text(text: str,
         val = _match_label(text, aliases)
         if not val:
             continue
-        raw[field] = val
         if field == "_patient_name":
             form.patient_ref = _hash_ref(val)   # name -> pseudonym, never stored
-        else:
-            setattr(form, field, val)
+            raw[field] = form.patient_ref       # not the name itself
+            continue
+        raw[field] = val
+        setattr(form, field, val)
 
     for pat in _GA_PATTERNS:
         m = re.search(pat, text, re.IGNORECASE)

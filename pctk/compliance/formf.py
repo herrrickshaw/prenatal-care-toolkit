@@ -25,7 +25,18 @@ REQUIRED_FORM_F_FIELDS = (
     "performed_by",
 )
 
+# PCPNDT Act s.29(1): records must be kept for AT LEAST two years (and until final
+# disposal of any criminal or other proceedings). It is a minimum, not a deadline:
+# a record older than this is not a violation, it only becomes eligible for disposal.
 DEFAULT_RETENTION_YEARS = 2
+
+
+def _add_years(d: date, years: int) -> date:
+    """d + years, with 29 Feb mapped to 1 Mar (the later date, so records are kept longer)."""
+    try:
+        return d.replace(year=d.year + years)
+    except ValueError:
+        return date(d.year + years, 3, 1)
 
 
 @dataclass
@@ -127,7 +138,7 @@ def audit_records(
     for form in forms:
         fac = per_facility.setdefault(
             form.facility_id or "<unknown>",
-            {"total": 0, "incomplete": 0, "unregistered": 0, "expired_retention": 0},
+            {"total": 0, "incomplete": 0, "unregistered": 0, "past_min_retention": 0},
         )
         fac["total"] += 1
 
@@ -151,21 +162,12 @@ def audit_records(
                     )
                 )
 
-        # 3) Retention window check.
+        # 3) Retention: informational only. Holding a record beyond the statutory
+        # minimum is compliant, so it is counted (eligible for disposal unless
+        # proceedings are pending, which this data cannot show), never flagged.
         if form.scan_date is not None:
-            keep_until = form.scan_date.replace(
-                year=form.scan_date.year + retention_years
-            )
-            if today > keep_until:
-                fac["expired_retention"] += 1
-                findings.append(
-                    Finding(
-                        form.record_id, form.facility_id,
-                        "retention_expired", "low",
-                        f"record past {retention_years}y retention "
-                        f"(scan {form.scan_date}, keep until {keep_until})",
-                    )
-                )
+            if today > _add_years(form.scan_date, retention_years):
+                fac["past_min_retention"] += 1
 
     # Facility-level completeness ratio.
     for fac, c in per_facility.items():

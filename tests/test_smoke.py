@@ -119,6 +119,23 @@ def test_compliance_finds_violations():
     assert res["counts"]["high"] >= 2
 
 
+def test_compliance_old_records_are_not_violations():
+    from datetime import date
+    from pctk.compliance import FormF, MachineRegistration, audit_records
+
+    regs = [MachineRegistration("US-100", "FAC-A", date(2019, 1, 1))]
+    old = dict(facility_id="FAC-A", machine_id="US-100", referring_doctor="Dr Rao",
+               indication="dating scan", gestational_age_weeks=12, performed_by="T1")
+    forms = [FormF(record_id="r2020", scan_date=date(2020, 2, 29), patient_ref="P1", **old),
+             FormF(record_id="r2026", scan_date=date(2026, 1, 5), patient_ref="P2", **old)]
+    res = audit_records(forms, regs, today=date(2026, 10, 24))
+    assert res["findings"] == []                                   # a 6-year-old record is compliant
+    assert res["facility_summary"]["FAC-A"]["past_min_retention"] == 1
+    # a 29 Feb scan date must not crash the two-year arithmetic
+    edge = audit_records(forms[:1], regs, today=date(2022, 2, 28))
+    assert edge["facility_summary"]["FAC-A"]["past_min_retention"] == 0
+
+
 # ---- Problem 4: biometry ----
 def test_biometry_reasonable():
     from pctk.biometry import ga_from_measurements, estimated_fetal_weight_hadlock

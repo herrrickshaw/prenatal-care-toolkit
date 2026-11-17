@@ -185,7 +185,7 @@ def cmd_compliance(args) -> int:
         print(f"    {fac:14} total={s['total']:4d} "
               f"complete={s['completeness_pct']:5.1f}%  "
               f"unregistered={s['unregistered']}  "
-              f"expired={s['expired_retention']}")
+              f"past_min_retention={s['past_min_retention']}")
     if args.verbose:
         for f in result["findings"]:
             print(f"    [{f.severity:6}] {f.record_id:8} {f.rule:22} {f.detail}")

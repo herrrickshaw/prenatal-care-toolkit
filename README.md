@@ -220,8 +220,10 @@ flagged = flag_anomalies(table, SRBConfig(group_cols=["State name","District nam
 
 A lightweight data model (`FormF`, `MachineRegistration`) plus a rule engine
 flagging: incomplete Form F, vague/non-clinical indication, implausible
-gestational age, scans on unregistered/lapsed machines, and records past their
-retention window. Returns findings plus a per-facility completeness summary.
+gestational age, and scans on unregistered/lapsed machines. Records older than the
+two-year statutory minimum (s.29(1)) are counted per facility as eligible for
+disposal, not flagged, since keeping them longer is compliant. Returns findings plus
+a per-facility completeness summary.
 
 **Ingestion** (`ingest`): turn a Form F **PDF or scanned image** into a record.
 Digital PDFs are read directly (`pypdf`); scanned PDFs are rasterised

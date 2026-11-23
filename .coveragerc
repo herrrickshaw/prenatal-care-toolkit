@@ -1,0 +1,13 @@
+[run]
+source = pctk
+omit =
+    tests/*
+    */conftest.py
+    test_*.py
+    # needs PyTorch (CPU wheels); exercised only by the dedicated cnn-backend CI job
+    pctk/planes/torch_cnn.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:

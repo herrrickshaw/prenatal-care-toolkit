@@ -134,7 +134,7 @@ class _Boxes:
 
 
 def test_image_to_lines_groups_into_reading_order(monkeypatch):
-    b = _Boxes([(100, 52, 40, 10, "B2", 0.9), (10, 50, 40, 10, "A1", 0.9),      # same line, out of x-order
+    b = _Boxes([(100, 48, 40, 10, "B2", 0.9), (10, 50, 40, 10, "A1", 0.9),      # same line; B2 is higher but to the right
                 (10, 10, 40, 10, "TOP", 0.9), (5, 120, 30, 10, " last ", 0.9)])
     out = ob.image_to_lines(np.zeros((200, 200), np.uint8), backend=b)
     assert out == "TOP\nA1 B2\nlast" and b.min_conf == 0.2
@@ -295,3 +295,48 @@ def test_redact_dicom_frame_three_frame_grayscale_stack(monkeypatch, tmp_path):
     write_dicom(src, rows=60, cols=80, frames=3)
     pt.redact_dicom_frame(str(src), str(dst), frame=1)
     assert Image.open(dst).size == (80, 60)
+
+
+def test_line_tolerance_is_inclusive():
+    boxes = [(0, 0, 10, 10, "A", 1.0), (50, 6, 10, 10, "B", 1.0)]               # centres exactly tol (6) apart
+    assert ob.image_to_lines(np.zeros((9, 9), np.uint8), backend=_Boxes(boxes)) == "A B"
+
+
+def test_margin_uses_width_for_x_and_height_for_y():
+    shape = (100, 200)                                                          # H=100, W=200: mx=36, my=18
+    assert pt._in_margin((20, 45, 20, 10, "", 1), shape, 0.18)                  # cx=30 < 36 (would fail with 18)
+    assert not pt._in_margin((90, 25, 20, 10, "", 1), shape, 0.18)             # cy=30 > 18, centred in x
+
+
+def test_zero_size_region_is_a_noop_even_for_blur():
+    a = _arr(20, 20)
+    for method in ("blur", "pixelate", "blackout"):
+        pt._redact_region(a, 5, 5, 0, 6, method)
+        pt._redact_region(a, 5, 5, 6, 0, method)
+    assert (a == 200).all()
+
+
+def test_pixelate_produces_constant_blocks():
+    a = np.random.default_rng(1).integers(0, 255, (48, 48, 3), dtype=np.uint8)
+    before = a.copy()
+    pt._redact_region(a, 0, 0, 48, 48, "pixelate")
+    assert not (a == before).all()
+    assert (a[:12, :12] == a[0, 0]).all() and (a[12:24, 24:36] == a[12, 24]).all()
+
+
+def test_upscale_below_one_is_ignored(monkeypatch):
+    b = _use_backend(monkeypatch, [(10, 10, 20, 10, "NAME", 0.9)])
+    opts = pt.RedactOptions(upscale=0.5, pad=0, margin_only=False)
+    out, boxes = pt.redact_array(_arr(), opts)
+    assert boxes == [(10, 10, 20, 10, "NAME", 0.9)] and not any("upscale" in line for line in opts.audit_log)
+
+
+@pytest.mark.parametrize("frames,rgb", [(2, False), (2, True)])
+def test_redact_dicom_frame_picks_the_requested_frame(monkeypatch, tmp_path, frames, rgb):
+    monkeypatch.setattr(ob, "get_backend", lambda prefer=None, languages=None: None)
+    src, dst = tmp_path / "in.dcm", tmp_path / "f.png"
+    arr = write_dicom(src, rows=60, cols=80, frames=frames, rgb=rgb)
+    pt.redact_dicom_frame(str(src), str(dst), frame=1)
+    got = np.asarray(Image.open(dst))[30, 40]
+    want = arr[1][30, 40]
+    assert got.tolist() == (want.tolist() if rgb else [int(want)] * 3)

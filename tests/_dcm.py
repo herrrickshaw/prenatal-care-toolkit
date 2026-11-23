@@ -2,7 +2,7 @@
 import numpy as np
 
 
-def write_dicom(path, rows=40, cols=60, frames=1, rgb=False):
+def write_dicom(path, rows=40, cols=60, frames=1, rgb=False, private=False):
     import pydicom
     from pydicom.dataset import Dataset, FileDataset
     from pydicom.uid import ExplicitVRLittleEndian, generate_uid
@@ -34,6 +34,8 @@ def write_dicom(path, rows=40, cols=60, frames=1, rgb=False):
     ds.HighBit = 7
     ds.PixelRepresentation = 0
     ds.PixelData = arr.tobytes()
+    if private:
+        ds.add_new(0x00091001, "LO", "PRIVATE-VALUE")
     ds.is_little_endian = True
     ds.is_implicit_VR = False
     ds.save_as(str(path))

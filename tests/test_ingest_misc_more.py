@@ -489,3 +489,16 @@ def test_planes_resolve_col_and_health_importances_fallback(monkeypatch):
 def test_blank_field_does_not_capture_next_line():
     form, _ = ing.parse_form_f_text("Referred by:\nPerformed by: Dr Lee\n")
     assert not form.referring_doctor
+
+
+def test_match_label_splits_at_two_spaces_and_dicom_date_needs_eight_digits():
+    assert ing._match_label("Referred by: Dr A  Indication: x", [r"referred by"]) == "Dr A"
+    from pydicom.dataset import Dataset
+    from pctk.deid import dicom_scrub as m
+    d = Dataset()
+    d.StudyDate = "2026031"                                   # 7 digits: not a valid DA
+    m._apply_date(d, (0x0008, 0x0020), m.DeidOptions(date_shift_days=1))
+    assert d.StudyDate == ""
+    d.StudyDate = "20260301"
+    m._apply_date(d, (0x0008, 0x0020), m.DeidOptions(date_shift_days=1))
+    assert d.StudyDate == "20260302"

@@ -289,3 +289,56 @@ def test_plane_backend_selection(monkeypatch):
     monkeypatch.setattr("pctk.planes.torch_cnn", fake, raising=False)
     assert cli._plane_clf("torch", epochs=3).cfg.epochs == 3
     assert cli._load_plane_clf("torch", "p") == ("loaded", "p")
+
+
+def test_deid_dicom_cli_private_tags_follow_flag(tmp_path, capsys):
+    import pydicom
+    src = tmp_path / "in.dcm"
+    write_dicom(src, private=True)
+    run(capsys, "deid-dicom", str(src), str(tmp_path / "a.dcm"))
+    run(capsys, "deid-dicom", str(src), str(tmp_path / "b.dcm"), "--keep-private")
+    assert (0x0009, 0x1001) not in pydicom.dcmread(str(tmp_path / "a.dcm"))
+    assert (0x0009, 0x1001) in pydicom.dcmread(str(tmp_path / "b.dcm"))
+
+
+def test_deid_image_cli_whole_image_flag_controls_margin_only(tmp_path, monkeypatch, capsys):
+    class Backend:
+        name = "fake"
+
+        def detect(self, img, min_conf=0.3):
+            return [(80, 80, 40, 20, "CENTRAL", 0.9)]   # 2x upscale coordinates
+    monkeypatch.setattr(ocr_backends, "get_backend", lambda prefer=None, languages=None: Backend())
+    src = tmp_path / "a.png"
+    _png(src)
+    run(capsys, "deid-image", str(src), str(tmp_path / "keep.png"))
+    run(capsys, "deid-image", str(src), str(tmp_path / "all.png"), "--whole-image")
+    assert np.asarray(Image.open(tmp_path / "keep.png"))[45, 45].tolist() == [200] * 3
+    assert np.asarray(Image.open(tmp_path / "all.png"))[45, 45].sum() == 0
+
+
+def test_srb_cli_single_aggregate_flag_falls_back_to_long_format(tmp_path, capsys):
+    p = tmp_path / "b.csv"
+    _births(p, [("Fine", 98, 102)])
+    rc, out, _ = run(capsys, "srb", str(p), "--males-col", "boys")
+    assert rc == 0 and "[srb] 1 units >= 30 births" in out
+    rc, out, _ = run(capsys, "srb", str(p), "--females-col", "girls")
+    assert rc == 0 and "[srb] 1 units >= 30 births" in out
+
+
+def test_health_demo_lists_six_top_features(capsys):
+    rc, out, _ = run(capsys, "health-demo", "--n", "240")
+    after = out.split("top features:\n", 1)[1]
+    assert len([ln for ln in after.splitlines() if ln.startswith("   0.") or ln.startswith("   1.")]) == 6
+
+
+def test_compliance_cli_honours_registration_end_date(tmp_path, capsys):
+    forms, regs = tmp_path / "f.csv", tmp_path / "r.csv"
+    base = {"patient_ref": "P", "facility_id": "FAC-A", "machine_id": "US-1", "referring_doctor": "Dr R",
+            "indication": "dating scan", "gestational_age_weeks": "12", "performed_by": "T"}
+    pd.DataFrame([{**base, "record_id": "in", "scan_date": "2023-06-01"},
+                  {**base, "record_id": "after", "scan_date": "2025-06-01"}]).to_csv(forms, index=False)
+    pd.DataFrame([{"machine_id": "US-1", "facility_id": "FAC-A", "registered_from": "2023-01-01",
+                   "registered_to": "2024-01-01"}]).to_csv(regs, index=False)
+    rc, out, _ = run(capsys, "compliance", str(forms), str(regs), "-v")
+    flagged = [ln for ln in out.splitlines() if "machine_unregistered" in ln]
+    assert len(flagged) == 1 and " after " in flagged[0] and " in " not in flagged[0]
